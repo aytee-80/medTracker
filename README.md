@@ -1,13 +1,15 @@
 # medication-app 
 
-A Web Application where a user's medication time is tracked and reminded.It's more like a reminder app
-A user logs in,add medication,takes medication,gets reminded everyday to take medication
+* A Web Application where a user's medication time is tracked and reminded.It's more like a reminder app
+* A user logs in,add medication,takes medication,gets reminded everyday to take medication
 
 ---
 
 ## See The Application Live 
-Link : https://medication-app2-2.onrender.com 
-I deployed it using render.
+* Link : https://medication-app2-2.onrender.com 
+* I deployed it using render.
+
+---
 
 ## How to Run Locally
 1. Open in VSCODE
