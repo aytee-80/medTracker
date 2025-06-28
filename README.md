@@ -5,6 +5,10 @@ A user logs in,add medication,takes medication,gets reminded everyday to take me
 
 ---
 
+## See The Application Live 
+Link : https://medication-app2-2.onrender.com 
+I deployed it using render.
+
 ## How to Run Locally
 1. Open in VSCODE
 2. Open Terminal
@@ -14,7 +18,7 @@ A user logs in,add medication,takes medication,gets reminded everyday to take me
 
 ## PostgreSQL 
 1. I used renders's postgreSQL database to add data
-2. Since i'm on free mode the database expires on 16 june 2025
+2. Since i'm on free mode the database expires on 28 july 2025
 3. The application won't be functional so you have to download the whole application
 4. Change the database connection in the config.py file use yours
 5. It will automatically create the database tables and the database
