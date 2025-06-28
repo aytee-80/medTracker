@@ -8,6 +8,7 @@
 ## See The Application Live 
 * Link : https://medication-app2-2.onrender.com 
 * I deployed it using render.
+* Please be patient with it, might take a while to load.
 
 ---
 
@@ -26,4 +27,16 @@
 5. It will automatically create the database tables and the database
 6. To confirm that it connected check the terminal after running python app.py it will show you if it's connected or not
 7. Only postgreSQL database will work
-8. Unless you change it 
+8. Unless you change it
+
+## IMAGES of the application
+
+* ![Screenshot 2025-06-28 200204](https://github.com/user-attachments/assets/bb57f5ec-ca27-47bb-8d6b-114c066e67c7)
+  
+* ![Screenshot 2025-06-28 200236](https://github.com/user-attachments/assets/8b2600c2-2a16-4197-bf18-1eee794222fd)
+
+* ![Screenshot 2025-06-28 200357](https://github.com/user-attachments/assets/baea3523-0966-4cb4-a41b-7ad169a5419b)
+* ![Screenshot 2025-06-28 200452](https://github.com/user-attachments/assets/eafa6abc-2ce7-4393-8f24-63ae902d953f)
+
+
+
