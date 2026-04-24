@@ -1,10 +1,48 @@
 {% extends "layout.html" %}
-{% block title %}Welcome{% endblock %}
+{% block title %}Welcome - MedTracker{% endblock %}
+
 {% block content %}
-<div class="card shadow-lg p-5 bg-dark text-white mx-auto" style="max-width: 500px;">
-    <h2 class="text-center mb-4">🎉 Welcome to Medication Tracker!</h2>
-    <p class="lead text-center">Your account has been successfully created.</p>
-    <p>Start managing your medications by adding them to your dashboard.</p>
-    <a href="/dashboard" class="btn btn-primary w-100 mt-3">Go to Dashboard</a>
+<div style="min-height: 70vh; display: flex; align-items: center; justify-content: center;">
+    <div class="card-custom fade-in" style="width: 100%; max-width: 500px; padding: 3rem; text-align: center;">
+        <!-- Success Icon -->
+        <div style="width: 80px; height: 80px; background: var(--success-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+            <i class="bi bi-check-lg" style="font-size: 2.5rem; color: var(--success);"></i>
+        </div>
+
+        <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.75rem;">
+            Welcome to MedTracker!
+        </h1>
+        
+        <p style="color: var(--text-secondary); font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">
+            Your account has been created successfully. Start managing your medications by adding them to your dashboard.
+        </p>
+
+        <!-- Features -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; text-align: center;">
+            <div style="padding: 1rem;">
+                <div style="width: 48px; height: 48px; background: var(--bg-tertiary); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;">
+                    <i class="bi bi-clock" style="font-size: 1.25rem; color: var(--accent);"></i>
+                </div>
+                <p style="font-size: 0.8125rem; color: var(--text-muted); margin: 0;">Reminders</p>
+            </div>
+            <div style="padding: 1rem;">
+                <div style="width: 48px; height: 48px; background: var(--bg-tertiary); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;">
+                    <i class="bi bi-graph-up" style="font-size: 1.25rem; color: var(--success);"></i>
+                </div>
+                <p style="font-size: 0.8125rem; color: var(--text-muted); margin: 0;">Track Progress</p>
+            </div>
+            <div style="padding: 1rem;">
+                <div style="width: 48px; height: 48px; background: var(--bg-tertiary); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;">
+                    <i class="bi bi-shield-check" style="font-size: 1.25rem; color: var(--warning);"></i>
+                </div>
+                <p style="font-size: 0.8125rem; color: var(--text-muted); margin: 0;">Stay Safe</p>
+            </div>
+        </div>
+
+        <a href="/dashboard" class="btn-primary-custom" style="display: inline-flex; justify-content: center;">
+            Go to Dashboard
+            <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
 </div>
 {% endblock %}
