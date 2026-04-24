@@ -32,19 +32,17 @@ app.config.update(
 mail = Mail(app)
 
 # Global connection pool
+
+
 def get_db_connection():
     try:
-        conn = psycopg2.connect(
-            host=config.DB_HOST,
-            user=config.DB_USER,
-            password=config.DB_PASSWORD,
-            dbname=config.DB_NAME,
-            port=config.DB_PORT
-        )
+        conn = psycopg2.connect(config.DATABASE_URL, sslmode="require",connect_timeout=10)
         return conn
     except Exception as e:
         print(f"❌ Failed to connect to the database: {e}")
         return None
+
+
 
 # Create tables if not exist
 def create_tables():
@@ -112,19 +110,38 @@ def home():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password'].encode('utf-8')
-        hashed = bcrypt.hashpw(password, bcrypt.gensalt()).decode('utf-8')
+        try:
+            email = request.form['email']
+            password = request.form['password'].encode('utf-8')
+            hashed = bcrypt.hashpw(password, bcrypt.gensalt()).decode('utf-8')
 
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute("INSERT INTO users (email, password) VALUES (%s, %s)", (email, hashed))
-        conn.commit()
-        cur.close()
-        conn.close()
+            conn = get_db_connection()
+            if conn is None:
+                return "DB connection failed"
 
-        send_welcome_email(email)
-        return redirect(url_for('home'))
+            cur = conn.cursor()
+
+            cur.execute("SELECT id FROM users WHERE email = %s", (email,))
+            existing = cur.fetchone()
+
+            if existing:
+                return "Email already registered"
+
+            cur.execute(
+                "INSERT INTO users (email, password) VALUES (%s, %s)",
+                (email, hashed)
+            )
+            conn.commit()
+
+            cur.close()
+            conn.close()
+
+            send_welcome_email(email)
+            return redirect(url_for('home'))
+
+        except Exception as e:
+            print("REGISTER ERROR:", e)
+            return f"Error: {e}"
     return render_template('register.html')
 
 @app.route('/login', methods=['POST'])
@@ -505,6 +522,6 @@ Medication Tracker Team
     mail.send(msg)
 
 # Run the app
-if __name__ == '__main__':
+if __name__ == "__main__":
     start_scheduler()
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host="127.0.0.1", port=5000, debug=True, use_reloader=True)
