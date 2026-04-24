@@ -1,65 +1,137 @@
 {% extends "layout.html" %}
-{% block title %}Add Medication{% endblock %}
-{% block content %}
+{% block title %}Add Medication - MedTracker{% endblock %}
 
+{% block content %}
 <!-- Success Toast -->
 {% if message %}
-<div class="toast-container position-fixed bottom-0 end-0 p-3 notification">
-  <div class="toast show align-items-center text-white bg-success border-0 shadow" role="alert">
-    <div class="d-flex">
-      <div class="toast-body fw-semibold">
-        ✅ {{ message }}
-      </div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+<div style="position: fixed; bottom: 2rem; right: 2rem; z-index: 1050;">
+    <div class="card-custom fade-in" style="padding: 1rem 1.5rem; display: flex; align-items: center; gap: 0.75rem; background: var(--success); border: none; color: white;">
+        <i class="bi bi-check-circle"></i>
+        <span style="font-weight: 500;">{{ message }}</span>
     </div>
-  </div>
 </div>
 {% endif %}
 
-<div class="card shadow-lg p-5 text-white mx-auto" style="max-width: 600px; border-radius: 20px; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(12px);">
-    <h2 class="text-center mb-4 fw-bold" style="letter-spacing: 1px;">➕ Add New Medication</h2>
-    <form action="/save_medication" method="post" novalidate>
-        
-        <div class="form-group mb-4">
-            <label class="form-label fs-5">Medication Name</label>
-            <div class="input-group input-group-lg">
-                <span class="input-group-text bg-secondary text-white"><i class="bi bi-capsule"></i></span>
-                <input type="text" name="name" class="form-control" placeholder="e.g. Paracetamol" required>
+<div style="max-width: 600px; margin: 0 auto;">
+    <!-- Back Button -->
+    <a href="/dashboard" class="btn-secondary-custom fade-in" style="margin-bottom: 1.5rem;">
+        <i class="bi bi-arrow-left"></i>
+        Back to Dashboard
+    </a>
+
+    <div class="card-custom fade-in fade-delay-1" style="padding: 2rem;">
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--accent), #06b6d4); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                <i class="bi bi-plus-lg" style="font-size: 1.75rem; color: white;"></i>
             </div>
+            <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem;">Add New Medication</h1>
+            <p style="color: var(--text-muted);">Enter your medication details below</p>
         </div>
 
-        <div class="form-group mb-4">
-            <label class="form-label fs-5">Total Pills</label>
-            <div class="input-group input-group-lg">
-                <span class="input-group-text bg-secondary text-white"><i class="bi bi-123"></i></span>
-                <input type="number" name="total_pills" class="form-control" placeholder="e.g. 30" required>
+        <!-- Form -->
+        <form action="/save_medication" method="post">
+            <!-- Medication Name -->
+            <div style="margin-bottom: 1.5rem;">
+                <label class="form-label-custom">
+                    <i class="bi bi-capsule" style="margin-right: 0.5rem;"></i>
+                    Medication Name
+                </label>
+                <input 
+                    type="text" 
+                    name="name" 
+                    class="form-control-custom" 
+                    placeholder="e.g., Paracetamol, Ibuprofen" 
+                    required
+                >
             </div>
-        </div>
 
-        <div class="form-group mb-4">
-            <label class="form-label fs-5">Dosage per Day</label>
-            <div class="input-group input-group-lg">
-                <span class="input-group-text bg-secondary text-white"><i class="bi bi-calendar-check"></i></span>
-                <input type="number" name="dosage_per_day" class="form-control" placeholder="e.g. 2" required>
+            <!-- Two Column Layout -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <!-- Total Pills -->
+                <div>
+                    <label class="form-label-custom">
+                        <i class="bi bi-box-seam" style="margin-right: 0.5rem;"></i>
+                        Total Pills
+                    </label>
+                    <input 
+                        type="number" 
+                        name="total_pills" 
+                        class="form-control-custom" 
+                        placeholder="30" 
+                        min="1"
+                        required
+                    >
+                </div>
+
+                <!-- Dosage per Day -->
+                <div>
+                    <label class="form-label-custom">
+                        <i class="bi bi-calendar-check" style="margin-right: 0.5rem;"></i>
+                        Daily Dosage
+                    </label>
+                    <input 
+                        type="number" 
+                        name="dosage_per_day" 
+                        class="form-control-custom" 
+                        placeholder="2" 
+                        min="1"
+                        required
+                    >
+                </div>
             </div>
-        </div>
 
-        <div class="form-group mb-4">
-            <label class="form-label fs-5">Time to Take</label>
-            <div class="input-group input-group-lg">
-                <span class="input-group-text bg-secondary text-white"><i class="bi bi-clock"></i></span>
-                <input type="time" name="schedule" class="form-control" required>
+            <!-- Schedule Time -->
+            <div style="margin-bottom: 1.5rem;">
+                <label class="form-label-custom">
+                    <i class="bi bi-clock" style="margin-right: 0.5rem;"></i>
+                    Time to Take
+                </label>
+                <input 
+                    type="time" 
+                    name="schedule" 
+                    class="form-control-custom" 
+                    required
+                >
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
+                    You&apos;ll receive reminders at this time
+                </p>
             </div>
-        </div>
 
-        <div class="form-group mb-4">
-            <label class="form-label fs-5">Description (optional)</label>
-            <textarea name="description" rows="4" class="form-control form-control-lg" placeholder="e.g. Take with food. Avoid alcohol."></textarea>
-        </div>
+            <!-- Description -->
+            <div style="margin-bottom: 2rem;">
+                <label class="form-label-custom">
+                    <i class="bi bi-card-text" style="margin-right: 0.5rem;"></i>
+                    Notes (Optional)
+                </label>
+                <textarea 
+                    name="description" 
+                    class="form-control-custom" 
+                    rows="3" 
+                    placeholder="e.g., Take with food. Avoid alcohol."
+                    style="resize: vertical; min-height: 100px;"
+                ></textarea>
+            </div>
 
-        <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm" style="border-radius: 30px; transition: all 0.3s ease;">
-            💾 Save Medication
-        </button>
-    </form>
+            <!-- Submit Button -->
+            <button type="submit" class="btn-primary-custom" style="width: 100%; justify-content: center; padding: 1rem;">
+                <i class="bi bi-check-lg"></i>
+                Save Medication
+            </button>
+        </form>
+    </div>
+
+    <!-- Tips Card -->
+    <div class="card-custom fade-in fade-delay-2" style="padding: 1.5rem; margin-top: 1.5rem;">
+        <h3 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-lightbulb" style="color: var(--warning);"></i>
+            Tips for Better Adherence
+        </h3>
+        <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-secondary); font-size: 0.875rem; line-height: 1.8;">
+            <li>Set your schedule time to align with daily routines (meals, bedtime)</li>
+            <li>Keep medications in a visible, consistent location</li>
+            <li>Use the notes field to record important instructions from your doctor</li>
+        </ul>
+    </div>
 </div>
 {% endblock %}
