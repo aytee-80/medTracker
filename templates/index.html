@@ -1,25 +1,64 @@
 {% extends "layout.html" %}
-{% block title %}Login{% endblock %}
-{% block content %}
-<div class="card shadow-lg p-4 bg-dark text-white mx-auto" style="max-width: 400px;">
-    <h2 class="text-center mb-4">🔐 Login</h2>
-    
-    <!-- Styled Form with POST method -->
-    <form action="/login" method="POST">
-        <!-- Email Field -->
-        <input type="email" name="email" class="form-control mb-3" placeholder="Email" required style="background-color: #333; color: white; border: none;">
-        
-        <!-- Password Field -->
-        <input type="password" name="password" class="form-control mb-3" placeholder="Password" required style="background-color: #333; color: white; border: none;">
-        
-        <!-- Login Button -->
-        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Login</button>
-    </form>
+{% block title %}Login - MedTracker{% endblock %}
 
-    <!-- Visible Link -->
-    <p class="mt-3 text-center">
-        Don't have an account? 
-        <a href="/register" class="text-info fw-bold" style="text-decoration: underline;">Register</a>
-    </p>
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+    <div class="card-custom fade-in" style="width: 100%; max-width: 420px; padding: 2.5rem;">
+        <!-- Logo -->
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--accent), #06b6d4); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                <i class="bi bi-capsule" style="font-size: 2rem; color: white;"></i>
+            </div>
+            <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem;">Welcome back</h1>
+            <p style="color: var(--text-muted); font-size: 0.9375rem;">Sign in to your MedTracker account</p>
+        </div>
+
+        <!-- Form -->
+        <form action="/login" method="POST">
+            <div style="margin-bottom: 1.25rem;">
+                <label class="form-label-custom">Email address</label>
+                <input 
+                    type="email" 
+                    name="email" 
+                    class="form-control-custom" 
+                    placeholder="you@example.com" 
+                    required
+                    autocomplete="email"
+                >
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label class="form-label-custom">Password</label>
+                <input 
+                    type="password" 
+                    name="password" 
+                    class="form-control-custom" 
+                    placeholder="Enter your password" 
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <button type="submit" class="btn-primary-custom" style="width: 100%; justify-content: center;">
+                <i class="bi bi-box-arrow-in-right"></i>
+                Sign in
+            </button>
+        </form>
+
+        <!-- Divider -->
+        <div style="display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0;">
+            <div style="flex: 1; height: 1px; background: var(--border);"></div>
+            <span style="color: var(--text-muted); font-size: 0.8125rem;">or</span>
+            <div style="flex: 1; height: 1px; background: var(--border);"></div>
+        </div>
+
+        <!-- Register Link -->
+        <p style="text-align: center; color: var(--text-secondary); font-size: 0.9375rem; margin: 0;">
+            Don&apos;t have an account? 
+            <a href="/register" style="color: var(--accent); font-weight: 600; text-decoration: none;">
+                Create one
+            </a>
+        </p>
+    </div>
 </div>
 {% endblock %}

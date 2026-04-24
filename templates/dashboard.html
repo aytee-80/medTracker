@@ -1,110 +1,592 @@
 {% extends "layout.html" %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}Dashboard - MedTracker{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold">🧠 Your Medications</h2>
-    <a href="/add_medication" class="btn btn-success btn-lg shadow-sm">+ Add</a>
-</div>
-
-<!-- Emergency Button -->
-<a href="tel:0800123456" class="btn btn-danger w-100 mb-4 fw-bold fs-5 py-3 shadow-sm">
-    🚨 Call Emergency Services
-</a>
-
-<!-- Notification Alerts -->
-{% if notifications %}
-    {% for note in notifications %}
-        <div class="alert alert-{{ note.type }} alert-dismissible fade show shadow-sm" role="alert">
-            {{ note.message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    {% endfor %}
-{% endif %}
-
-<!-- Medication Cards -->
-<div class="row g-3">
-    {% for med in medications %}
-    <div class="col-12 col-md-6 col-lg-4">
-        <div class="card bg-dark text-white shadow-lg" style="border-radius: 20px; backdrop-filter: blur(12px); background: rgba(30, 30, 30, 0.85);">
-            <div class="card-body">
-                <h4 class="card-title text-info">{{ med.name }}</h4>
-                <p class="card-text"><i class="bi bi-capsule"></i> <strong>Dosage:</strong> {{ med.dosage_per_day }} pill(s)/day</p>
-                <p class="card-text"><i class="bi bi-clock"></i> <strong>Schedule:</strong> 
-                    <span class="med-schedule text-warning" data-time="{{ med.schedule_str }}">{{ med.schedule_str }}</span>
-                </p>
-                <p class="card-text"><i class="bi bi-box-seam"></i> <strong>Pills Left:</strong> {{ med.total_pills }}</p>
-
-                {% if med.total_pills > 0 %}
-                <form action="/take_medication" method="POST" class="mt-3">
-                    <input type="hidden" name="med_id" value="{{ med.id }}">
-                    <button class="btn btn-outline-success btn-sm w-100">✅ Took Pills</button>
-                </form>
-
-                <form action ="/delete_medication" method="POST">
-
-                    <input type="hidden" name="med_id" value="{{med.id}}">
-                    <button class="btn btn-sm btn-outline-danger">🗑️ Remove</button>
-
-                </form>
-
-                {% else %}
-                <p class="text-danger fw-semibold mt-3">⚠️ Out of pills!</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-
-<!-- Countdown Reminder -->
-{% if medications %}
-<div class="card bg-secondary text-white mt-5 shadow" style="border-radius: 20px;">
-    <div class="card-body text-center">
-        <h5 class="fw-bold">⏱️ Next Medication Reminder</h5>
-        <p id="countdown" class="fs-3 text-warning fw-semibold">Loading...</p>
-    </div>
-</div>
-{% endif %}
-
-<script>
-    // Example countdown logic — adapt as needed
-    const nextTime = document.querySelector('.med-schedule')?.dataset.time;
-    if (nextTime) {
-        const countdownEl = document.getElementById('countdown');
-        const interval = setInterval(() => {
-            const now = new Date();
-            const target = new Date();
-            const [hours, minutes] = nextTime.split(':');
-            target.setHours(+hours, +minutes, 0, 0);
-
-            if (target < now) target.setDate(target.getDate() + 1); // next day
-
-            const diff = target - now;
-            if (diff <= 0) {
-                countdownEl.textContent = "It's time!";
-                clearInterval(interval);
-            } else {
-                const h = Math.floor(diff / (1000 * 60 * 60));
-                const m = Math.floor((diff / (1000 * 60)) % 60);
-                const s = Math.floor((diff / 1000) % 60);
-                countdownEl.textContent = `${h}h ${m}m ${s}s`;
-            }
-        }, 1000);
+<style>
+    /* Dashboard specific styles */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
-</script>
+    
+    @media (min-width: 1024px) {
+        .dashboard-grid {
+            grid-template-columns: 300px 1fr;
+        }
+    }
+    
+    /* Sidebar card */
+    .sidebar-card {
+        background: var(--bg-secondary);
+        border-radius: 20px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+    }
+    
+    /* Stats cards */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stat-item {
+        background: var(--bg-tertiary);
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1;
+    }
+    
+    .stat-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0.25rem;
+    }
+    
+    /* Circular progress */
+    .progress-container {
+        position: relative;
+        width: 160px;
+        height: 160px;
+        margin: 0 auto 1.5rem;
+    }
+    
+    .progress-ring {
+        transform: rotate(-90deg);
+    }
+    
+    .progress-ring-bg {
+        fill: none;
+        stroke: var(--bg-tertiary);
+        stroke-width: 12;
+    }
+    
+    .progress-ring-fill {
+        fill: none;
+        stroke: url(#gradient);
+        stroke-width: 12;
+        stroke-linecap: round;
+        stroke-dasharray: 408;
+        stroke-dashoffset: 408;
+        transition: stroke-dashoffset 1s ease-out;
+    }
+    
+    .progress-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+    
+    .progress-time {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1;
+    }
+    
+    .progress-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+    }
+    
+    /* Quick action button */
+    .quick-action {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: var(--bg-tertiary);
+        border: none;
+        border-radius: 12px;
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        margin-bottom: 0.5rem;
+    }
+    
+    .quick-action:hover {
+        background: var(--accent);
+        color: white;
+        transform: translateX(4px);
+    }
+    
+    .quick-action i {
+        font-size: 1.125rem;
+    }
+    
+    /* Medication list */
+    .med-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .med-item {
+        background: var(--bg-secondary);
+        border-radius: 16px;
+        padding: 1.25rem;
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .med-item:hover {
+        border-color: var(--accent);
+        box-shadow: 0 4px 20px rgba(14, 165, 233, 0.1);
+    }
+    
+    .med-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .med-icon.default {
+        background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    }
+    
+    .med-icon.warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+    
+    .med-icon.danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+    
+    .med-icon i {
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    .med-details {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .med-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+    
+    .med-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .med-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-size: 0.8125rem;
+        color: var(--text-muted);
+    }
+    
+    .med-meta-item i {
+        font-size: 0.875rem;
+    }
+    
+    .pills-badge {
+        padding: 0.25rem 0.625rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .pills-badge.success {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+    }
+    
+    .pills-badge.warning {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+    }
+    
+    .pills-badge.danger {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+    
+    .med-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+    
+    .action-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .action-btn.take {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+    }
+    
+    .action-btn.take:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+    }
+    
+    .action-btn.delete {
+        background: var(--bg-tertiary);
+        color: var(--text-muted);
+    }
+    
+    .action-btn.delete:hover {
+        background: #ef4444;
+        color: white;
+    }
+    
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--bg-secondary);
+        border-radius: 20px;
+        border: 2px dashed var(--border-color);
+    }
+    
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+    
+    .empty-icon i {
+        font-size: 2rem;
+        color: var(--text-muted);
+    }
+    
+    /* Emergency banner */
+    .emergency-banner {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        border-radius: 14px;
+        text-decoration: none;
+        margin-bottom: 1rem;
+        transition: transform 0.2s ease;
+    }
+    
+    .emergency-banner:hover {
+        transform: scale(1.01);
+    }
+    
+    .emergency-icon {
+        width: 44px;
+        height: 44px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .emergency-icon i {
+        font-size: 1.25rem;
+        color: white;
+    }
+    
+    /* Section header */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+    
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .section-count {
+        font-size: 0.8125rem;
+        color: var(--text-muted);
+    }
+    
+    /* Pulse animation for urgent */
+    @keyframes pulse-ring {
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    
+    .pulse-urgent {
+        animation: pulse-ring 2s infinite;
+    }
+    
+    /* Fade delay classes */
+    .fade-delay-1 { animation-delay: 0.05s; }
+    .fade-delay-2 { animation-delay: 0.1s; }
+    .fade-delay-3 { animation-delay: 0.15s; }
+    .fade-delay-4 { animation-delay: 0.2s; }
+    .fade-delay-5 { animation-delay: 0.25s; }
+    .fade-delay-6 { animation-delay: 0.3s; }
+    .fade-delay-7 { animation-delay: 0.35s; }
+    .fade-delay-8 { animation-delay: 0.4s; }
+    .fade-delay-9 { animation-delay: 0.45s; }
+    .fade-delay-10 { animation-delay: 0.5s; }
+</style>
 
-<!-- templates/layout.html -->
-<div class="container py-4">
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-info">{{ message }}</div>
+<div class="dashboard-grid fade-in">
+    <!-- Sidebar -->
+    <aside>
+        <div class="sidebar-card">
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-value">{{ medications|length }}</div>
+                    <div class="stat-label">Meds</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="dosesToday">-</div>
+                    <div class="stat-label">Today</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="takenToday">0</div>
+                    <div class="stat-label">Taken</div>
+                </div>
+            </div>
+            
+            <!-- Countdown Ring -->
+            <div class="progress-container">
+                <svg class="progress-ring" width="160" height="160">
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <circle class="progress-ring-bg" cx="80" cy="80" r="65" />
+                    <circle class="progress-ring-fill" id="progressRing" cx="80" cy="80" r="65" />
+                </svg>
+                <div class="progress-center">
+                    <div class="progress-time" id="countdown">--:--</div>
+                    <div class="progress-label">Next dose</div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <a href="/add_medication" class="quick-action">
+                <i class="bi bi-plus-circle"></i>
+                <span>Add medication</span>
+            </a>
+            <a href="/statistics" class="quick-action">
+                <i class="bi bi-bar-chart-line"></i>
+                <span>View statistics</span>
+            </a>
+            <a href="/print_guide" class="quick-action">
+                <i class="bi bi-printer"></i>
+                <span>Print guide</span>
+            </a>
+        </div>
+        
+        <!-- Emergency Banner -->
+        <a href="tel:0800123456" class="emergency-banner" style="margin-top: 1rem;">
+            <div class="emergency-icon">
+                <i class="bi bi-telephone"></i>
+            </div>
+            <div style="flex: 1;">
+                <p style="color: white; font-weight: 600; margin: 0; font-size: 0.9375rem;">Emergency</p>
+                <p style="color: rgba(255,255,255,0.8); font-size: 0.8125rem; margin: 0;">0800 123 456</p>
+            </div>
+            <i class="bi bi-arrow-right" style="color: rgba(255,255,255,0.7);"></i>
+        </a>
+    </aside>
+    
+    <!-- Main Content -->
+    <main>
+        <!-- Notifications -->
+        {% if notifications %}
+            {% for note in notifications %}
+                <div class="alert-custom {% if note.type == 'danger' %}alert-danger-custom{% else %}alert-info-custom{% endif %}" style="margin-bottom: 1rem;">
+                    <i class="bi {% if note.type == 'danger' %}bi-exclamation-triangle{% else %}bi-info-circle{% endif %}"></i>
+                    {{ note.message }}
+                </div>
             {% endfor %}
         {% endif %}
-    {% endwith %}
-
-    
+        
+        <!-- Section Header -->
+        <div class="section-header">
+            <h2 class="section-title">Your Medications</h2>
+            <span class="section-count">{{ medications|length }} active</span>
+        </div>
+        
+        <!-- Medication List -->
+        <div class="med-list">
+            {% for med in medications %}
+            <div class="med-item fade-in fade-delay-{{ loop.index }}">
+                <div class="med-icon {% if med.total_pills == 0 %}danger{% elif med.total_pills < 5 %}warning{% else %}default{% endif %} {% if med.total_pills == 0 %}pulse-urgent{% endif %}">
+                    <i class="bi bi-capsule"></i>
+                </div>
+                
+                <div class="med-details">
+                    <div class="med-name">{{ med.name }}</div>
+                    <div class="med-meta">
+                        <span class="med-meta-item">
+                            <i class="bi bi-clock"></i>
+                            {{ med.schedule_str }}
+                        </span>
+                        <span class="med-meta-item">
+                            <i class="bi bi-layers"></i>
+                            {{ med.dosage_per_day }} per day
+                        </span>
+                        <span class="pills-badge {% if med.total_pills == 0 %}danger{% elif med.total_pills < 5 %}warning{% else %}success{% endif %}">
+                            {% if med.total_pills == 0 %}
+                                Out of stock
+                            {% else %}
+                                {{ med.total_pills }} pills left
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="med-actions">
+                    {% if med.total_pills > 0 %}
+                    <form action="/take_medication" method="POST" style="margin: 0;">
+                        <input type="hidden" name="med_id" value="{{ med.id }}">
+                        <button type="submit" class="action-btn take" title="Mark as taken">
+                            <i class="bi bi-check-lg"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                    <form action="/delete_medication" method="POST" style="margin: 0;">
+                        <input type="hidden" name="med_id" value="{{ med.id }}">
+                        <button type="submit" class="action-btn delete" title="Remove">
+                            <i class="bi bi-trash3"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-capsule"></i>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">No medications yet</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; max-width: 280px; margin-left: auto; margin-right: auto;">Start tracking your medications to never miss a dose again</p>
+                <a href="/add_medication" class="btn-primary-custom" style="display: inline-flex;">
+                    <i class="bi bi-plus-lg"></i>
+                    Add your first medication
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
 </div>
 
+<script>
+    // Set doses today count
+    document.getElementById('dosesToday').textContent = '{{ medications|length }}';
+    
+    // Countdown timer
+    function updateCountdown() {
+        const meds = document.querySelectorAll('.med-meta-item');
+        const now = new Date();
+        let nextTime = null;
+
+        meds.forEach(el => {
+            const text = el.textContent.trim();
+            const timeMatch = text.match(/(\d{1,2}):(\d{2})/);
+            if (!timeMatch) return;
+
+            const hours = parseInt(timeMatch[1]);
+            const minutes = parseInt(timeMatch[2]);
+            let nextDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
+
+            if (now > nextDate) {
+                nextDate.setDate(nextDate.getDate() + 1);
+            }
+
+            if (!nextTime || nextDate < nextTime) {
+                nextTime = nextDate;
+            }
+        });
+
+        if (nextTime) {
+            const countdownEl = document.getElementById('countdown');
+            const ringEl = document.getElementById('progressRing');
+            const circumference = 2 * Math.PI * 65; // r=65
+
+            function tick() {
+                const now = new Date();
+                const diff = nextTime - now;
+
+                if (diff <= 0) {
+                    countdownEl.textContent = "Now!";
+                    countdownEl.style.color = 'var(--success)';
+                    ringEl.style.strokeDashoffset = 0;
+                    return;
+                }
+
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff / (1000 * 60)) % 60);
+                const seconds = Math.floor((diff / 1000) % 60);
+
+                if (hours > 0) {
+                    countdownEl.textContent = `${hours}h ${minutes}m`;
+                } else if (minutes > 0) {
+                    countdownEl.textContent = `${minutes}m ${seconds}s`;
+                } else {
+                    countdownEl.textContent = `${seconds}s`;
+                    countdownEl.style.color = 'var(--warning)';
+                }
+
+                // Update ring (12 hour scale for visibility)
+                const totalMs = 12 * 60 * 60 * 1000;
+                const progress = Math.max(0, 1 - (diff / totalMs));
+                ringEl.style.strokeDashoffset = circumference * (1 - progress);
+            }
+
+            tick();
+            setInterval(tick, 1000);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', updateCountdown);
+</script>
 {% endblock %}
