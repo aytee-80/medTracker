@@ -1,0 +1,616 @@
+{% extends "layout.html" %}
+{% block title %}Medication Information - MedTracker{% endblock %}
+
+{% block content %}
+<style>
+    .med-layout {
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        gap: 1.5rem;
+        min-height: calc(100vh - 200px);
+    }
+    
+    @media (max-width: 992px) {
+        .med-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    /* Left Panel - Search */
+    .search-panel {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        height: fit-content;
+        position: sticky;
+        top: 1rem;
+    }
+    
+    .search-panel-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .search-panel-header i {
+        font-size: 1.5rem;
+        color: var(--accent);
+    }
+    
+    .search-panel-header h2 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-group input {
+        width: 100%;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 0.875rem 1rem;
+        font-size: 0.9375rem;
+        color: var(--text-primary);
+        transition: all 0.2s ease;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+    
+    .form-group input::placeholder {
+        color: var(--text-muted);
+    }
+    
+    .form-hint {
+        font-size: 0.8125rem;
+        color: var(--text-muted);
+        margin-top: 0.375rem;
+    }
+    
+    .search-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.875rem 1.5rem;
+        background: linear-gradient(135deg, #06b6d4, #0891b2);
+        border: none;
+        border-radius: var(--radius);
+        color: white;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-top: 1rem;
+    }
+    
+    .search-btn:hover:not(:disabled) {
+        filter: brightness(1.1);
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+    }
+    
+    .search-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .recent-searches {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+    }
+    
+    .recent-searches h4 {
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .recent-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .recent-item {
+        padding: 0.375rem 0.75rem;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border);
+        border-radius: 100px;
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .recent-item:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+    
+    /* Right Panel - Results */
+    .results-panel {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        display: flex;
+        flex-direction: column;
+        min-height: 500px;
+    }
+    
+    .results-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .results-header-left {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+    }
+    
+    .results-header-left i {
+        color: var(--accent);
+        font-size: 1.125rem;
+    }
+    
+    .results-header h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+    
+    .med-name-badge {
+        padding: 0.25rem 0.75rem;
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(14, 165, 233, 0.1));
+        border: 1px solid var(--accent);
+        border-radius: 100px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--accent);
+    }
+    
+    .results-body {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--bg-tertiary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.25rem;
+    }
+    
+    .empty-state-icon i {
+        font-size: 2rem;
+        color: var(--text-muted);
+    }
+    
+    .empty-state h4 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0 0 0.5rem 0;
+    }
+    
+    .empty-state p {
+        font-size: 0.9375rem;
+        color: var(--text-muted);
+        margin: 0;
+        max-width: 300px;
+    }
+    
+    /* Loading State */
+    .loading-state {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .loading-state.active {
+        display: flex;
+    }
+    
+    .loading-spinner {
+        width: 56px;
+        height: 56px;
+        position: relative;
+        margin-bottom: 1.25rem;
+    }
+    
+    .loading-spinner::before,
+    .loading-spinner::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+    }
+    
+    .loading-spinner::before {
+        width: 100%;
+        height: 100%;
+        border: 3px solid var(--border);
+        border-top-color: var(--accent);
+        animation: spin 1s linear infinite;
+    }
+    
+    .loading-spinner::after {
+        width: 70%;
+        height: 70%;
+        top: 15%;
+        left: 15%;
+        border: 3px solid transparent;
+        border-bottom-color: #06b6d4;
+        animation: spin 0.8s linear infinite reverse;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .loading-state p {
+        font-size: 0.9375rem;
+        color: var(--text-muted);
+        margin: 0;
+    }
+    
+    /* Results Content */
+    .results-content {
+        display: none;
+    }
+    
+    .results-content.active {
+        display: block;
+    }
+    
+    .info-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .info-section:last-child {
+        margin-bottom: 0;
+    }
+    
+    .info-section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .info-section-header i {
+        font-size: 1rem;
+        color: var(--accent);
+    }
+    
+    .info-section-header h4 {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+    
+    .info-text {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1rem 1.25rem;
+        font-size: 0.9375rem;
+        line-height: 1.7;
+        color: var(--text-primary);
+    }
+    
+    .info-text p {
+        margin: 0 0 1rem 0;
+    }
+    
+    .info-text p:last-child {
+        margin-bottom: 0;
+    }
+    
+    .info-text h5 {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--accent);
+        margin: 1.25rem 0 0.5rem 0;
+    }
+    
+    .info-text h5:first-child {
+        margin-top: 0;
+    }
+    
+    .info-text ul {
+        margin: 0.5rem 0 1rem 0;
+        padding-left: 1.25rem;
+    }
+    
+    .info-text li {
+        margin-bottom: 0.375rem;
+        color: var(--text-secondary);
+    }
+    
+    .info-text li:last-child {
+        margin-bottom: 0;
+    }
+    
+    .info-text strong {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    /* Warning Box */
+    .warning-box {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        background: rgba(239, 68, 68, 0.05);
+        border: 1px solid var(--danger);
+        border-radius: var(--radius);
+        margin-top: 1.5rem;
+    }
+    
+    .warning-box i {
+        color: var(--danger);
+        font-size: 1.125rem;
+        flex-shrink: 0;
+        margin-top: 0.125rem;
+    }
+    
+    .warning-box p {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin: 0;
+        line-height: 1.5;
+    }
+    
+    .warning-box strong {
+        color: var(--danger);
+    }
+</style>
+
+<div class="med-layout fade-in">
+    <!-- Left Panel - Search -->
+    <div class="search-panel">
+        <div class="search-panel-header">
+            <i class="bi bi-capsule"></i>
+            <h2>Search Medication</h2>
+        </div>
+        
+        <form id="medForm">
+            <div class="form-group">
+                <label for="medicationName">Medication Name</label>
+                <input 
+                    type="text" 
+                    id="medicationName" 
+                    placeholder="e.g. Ibuprofen, Amoxicillin" 
+                    required
+                    autocomplete="off"
+                >
+                <p class="form-hint">Enter generic or brand name</p>
+            </div>
+
+            <button type="submit" class="search-btn" id="searchBtn">
+                <i class="bi bi-search"></i>
+                Search
+            </button>
+        </form>
+        
+        <div class="recent-searches" id="recentSearches" style="display: none;">
+            <h4>Recent Searches</h4>
+            <div class="recent-list" id="recentList"></div>
+        </div>
+    </div>
+    
+    <!-- Right Panel - Results -->
+    <div class="results-panel">
+        <div class="results-header">
+            <div class="results-header-left">
+                <i class="bi bi-file-medical"></i>
+                <h3>Medication Details</h3>
+            </div>
+            <span class="med-name-badge" id="medNameBadge" style="display: none;"></span>
+        </div>
+        
+        <div class="results-body">
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState">
+                <div class="empty-state-icon">
+                    <i class="bi bi-search"></i>
+                </div>
+                <h4>Search for a medication</h4>
+                <p>Enter a medication name to get detailed information about usage, dosage, and side effects.</p>
+            </div>
+            
+            <!-- Loading State -->
+            <div class="loading-state" id="loadingState">
+                <div class="loading-spinner"></div>
+                <p>Retrieving medication information...</p>
+            </div>
+            
+            <!-- Results Content -->
+            <div class="results-content" id="resultsContent">
+                <div class="info-section">
+                    <div class="info-text" id="infoText"></div>
+                </div>
+                
+                <div class="warning-box">
+                    <i class="bi bi-exclamation-circle-fill"></i>
+                    <p>
+                        <strong>Important:</strong> Always consult your doctor or pharmacist before taking any medication. This information is for educational purposes only.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const recentSearches = [];
+const MAX_RECENT = 5;
+
+function updateRecentSearches(term) {
+    const index = recentSearches.indexOf(term);
+    if (index > -1) {
+        recentSearches.splice(index, 1);
+    }
+    recentSearches.unshift(term);
+    if (recentSearches.length > MAX_RECENT) {
+        recentSearches.pop();
+    }
+    renderRecentSearches();
+}
+
+function renderRecentSearches() {
+    const container = document.getElementById('recentSearches');
+    const list = document.getElementById('recentList');
+    
+    if (recentSearches.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    
+    container.style.display = 'block';
+    list.innerHTML = recentSearches.map(term => 
+        `<span class="recent-item" onclick="searchMedication('${term}')">${term}</span>`
+    ).join('');
+}
+
+function formatMedicationInfo(text) {
+    // Convert markdown-style formatting to HTML
+    let html = text;
+    
+    // Convert **bold** to <strong>
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    
+    // Convert headers (lines ending with :) to h5
+    html = html.replace(/^([A-Z][^:\n]+):$/gm, '<h5>$1</h5>');
+    
+    // Convert bullet points
+    html = html.replace(/^[-•]\s*(.+)$/gm, '<li>$1</li>');
+    
+    // Wrap consecutive li elements in ul
+    html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+    
+    // Convert numbered lists
+    html = html.replace(/^\d+\.\s*(.+)$/gm, '<li>$1</li>');
+    
+    // Convert double newlines to paragraph breaks
+    html = html.split(/\n\n+/).map(p => {
+        p = p.trim();
+        if (!p) return '';
+        if (p.startsWith('<h5>') || p.startsWith('<ul>')) return p;
+        return `<p>${p}</p>`;
+    }).join('');
+    
+    // Clean up single newlines within paragraphs
+    html = html.replace(/<p>(.+?)<\/p>/gs, (match, content) => {
+        return `<p>${content.replace(/\n/g, '<br>')}</p>`;
+    });
+    
+    return html;
+}
+
+async function searchMedication(term) {
+    document.getElementById('medicationName').value = term;
+    
+    const emptyState = document.getElementById('emptyState');
+    const loadingState = document.getElementById('loadingState');
+    const resultsContent = document.getElementById('resultsContent');
+    const medNameBadge = document.getElementById('medNameBadge');
+    const searchBtn = document.getElementById('searchBtn');
+    
+    // Show loading
+    emptyState.style.display = 'none';
+    resultsContent.classList.remove('active');
+    loadingState.classList.add('active');
+    searchBtn.disabled = true;
+    
+    try {
+        const response = await fetch('{{ url_for("ai_assistant.get_medication_info_route") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ medication_name: term })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('infoText').innerHTML = formatMedicationInfo(data.info);
+            medNameBadge.textContent = term;
+            medNameBadge.style.display = 'inline-block';
+            resultsContent.classList.add('active');
+            updateRecentSearches(term);
+        } else {
+            alert('Error: ' + data.error);
+            emptyState.style.display = 'flex';
+        }
+    } catch (error) {
+        alert('An error occurred. Please try again.');
+        console.error(error);
+        emptyState.style.display = 'flex';
+    } finally {
+        loadingState.classList.remove('active');
+        searchBtn.disabled = false;
+    }
+}
+
+document.getElementById('medForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const term = document.getElementById('medicationName').value.trim();
+    if (term) {
+        searchMedication(term);
+    }
+});
+</script>
+{% endblock %}

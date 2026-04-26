@@ -82,7 +82,7 @@ def export_pdf():
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer)
     styles = getSampleStyleSheet()
-    story = [Paragraph("📄 Medication Report", styles['Title']), Spacer(1, 24)]
+    story = [Paragraph("Medication Report", styles['Title']), Spacer(1, 24)]
 
     for med in meds:
         name, dosage, total, last_taken = med

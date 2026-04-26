@@ -59,7 +59,7 @@ def take_medication():
 
         if new_count <= 0:
             cur.execute("DELETE FROM medications WHERE id = %s AND user_id = %s", (med_id, user_id))
-            flash("⚠️ You're out of pills. Please refill.")
+            flash("You're out of pills. Please refill.")
         else:
             cur.execute("""
                 UPDATE medications

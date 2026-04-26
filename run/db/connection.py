@@ -6,5 +6,5 @@ def get_db_connection():
         conn = psycopg2.connect(config.DATABASE_URL, sslmode="require", connect_timeout=10)
         return conn
     except Exception as e:
-        print(f"Failed to connect to the database: {e}")
+        print(f" Failed to connect to the database: {e}")
         return None

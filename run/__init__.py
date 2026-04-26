@@ -33,12 +33,13 @@ def create_app():
     mail.init_app(app)
 
     # Register blueprints (no url_prefix to keep original route paths)
-    from run.routes import auth, main, meds, stats, misc
+    from run.routes import auth, main, meds, stats, misc , ai_assistant
     app.register_blueprint(auth.auth)
     app.register_blueprint(main.main)
     app.register_blueprint(meds.meds)
     app.register_blueprint(stats.stats)
     app.register_blueprint(misc.misc)
+    app.register_blueprint(ai_assistant.ai_assistant)
 
     # Add format_time filter to Jinja2
     from run.utils.helpers import format_time

@@ -3,7 +3,152 @@
 
 {% block content %}
 <style>
-    /* Dashboard specific styles */
+    /* Dashboard Grid - AI Widget moved to top */
+    .dashboard-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    /* AI Assistant Banner - Prominent at top */
+    .ai-banner {
+        background: linear-gradient(135deg, var(--accent), #6366f1);
+        border-radius: 20px;
+        padding: 1.5rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ai-banner::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+    
+    .ai-banner::after {
+        content: "";
+        position: absolute;
+        bottom: -30%;
+        right: 20%;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+    }
+    
+    .ai-banner-content {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .ai-banner-icon {
+        width: 56px;
+        height: 56px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .ai-banner-icon i {
+        font-size: 1.75rem;
+        color: white;
+    }
+    
+    .ai-banner-text h3 {
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+    }
+    
+    .ai-banner-text p {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 0.9375rem;
+        margin: 0;
+        max-width: 400px;
+    }
+    
+    .ai-banner-actions {
+        display: flex;
+        gap: 0.75rem;
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+    }
+    
+    .ai-banner-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 10px;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .ai-banner-btn.primary {
+        background: white;
+        color: var(--accent);
+    }
+    
+    .ai-banner-btn.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .ai-banner-btn.secondary {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .ai-banner-btn.secondary:hover {
+        background: rgba(255, 255, 255, 0.25);
+    }
+    
+    @media (max-width: 768px) {
+        .ai-banner {
+            flex-direction: column;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        
+        .ai-banner-content {
+            flex-direction: column;
+        }
+        
+        .ai-banner-text p {
+            max-width: 100%;
+        }
+        
+        .ai-banner-actions {
+            width: 100%;
+            flex-direction: column;
+        }
+        
+        .ai-banner-btn {
+            justify-content: center;
+        }
+    }
+    
+    /* Main Dashboard Grid */
     .dashboard-grid {
         display: grid;
         grid-template-columns: 1fr;
@@ -12,7 +157,7 @@
     
     @media (min-width: 1024px) {
         .dashboard-grid {
-            grid-template-columns: 300px 1fr;
+            grid-template-columns: 280px 1fr;
         }
     }
     
@@ -21,7 +166,7 @@
         background: var(--bg-secondary);
         border-radius: 20px;
         padding: 1.5rem;
-        border: 1px solid var(--border-color);
+        border: 1px solid var(--border);
     }
     
     /* Stats cards */
@@ -57,8 +202,8 @@
     /* Circular progress */
     .progress-container {
         position: relative;
-        width: 160px;
-        height: 160px;
+        width: 140px;
+        height: 140px;
         margin: 0 auto 1.5rem;
     }
     
@@ -69,16 +214,16 @@
     .progress-ring-bg {
         fill: none;
         stroke: var(--bg-tertiary);
-        stroke-width: 12;
+        stroke-width: 10;
     }
     
     .progress-ring-fill {
         fill: none;
         stroke: url(#gradient);
-        stroke-width: 12;
+        stroke-width: 10;
         stroke-linecap: round;
-        stroke-dasharray: 408;
-        stroke-dashoffset: 408;
+        stroke-dasharray: 377;
+        stroke-dashoffset: 377;
         transition: stroke-dashoffset 1s ease-out;
     }
     
@@ -91,14 +236,14 @@
     }
     
     .progress-time {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
         font-weight: 700;
         color: var(--text-primary);
         line-height: 1;
     }
     
     .progress-label {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         color: var(--text-muted);
         margin-top: 0.25rem;
     }
@@ -109,13 +254,14 @@
         align-items: center;
         gap: 0.75rem;
         width: 100%;
-        padding: 0.875rem 1rem;
+        padding: 0.75rem 1rem;
         background: var(--bg-tertiary);
         border: none;
         border-radius: 12px;
         color: var(--text-primary);
         text-decoration: none;
         font-weight: 500;
+        font-size: 0.9375rem;
         transition: all 0.2s ease;
         cursor: pointer;
         margin-bottom: 0.5rem;
@@ -128,7 +274,39 @@
     }
     
     .quick-action i {
+        font-size: 1rem;
+    }
+    
+    /* Emergency banner */
+    .emergency-banner {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        border-radius: 14px;
+        text-decoration: none;
+        margin-top: 1rem;
+        transition: transform 0.2s ease;
+    }
+    
+    .emergency-banner:hover {
+        transform: scale(1.01);
+    }
+    
+    .emergency-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .emergency-icon i {
         font-size: 1.125rem;
+        color: white;
     }
     
     /* Medication list */
@@ -142,7 +320,7 @@
         background: var(--bg-secondary);
         border-radius: 16px;
         padding: 1.25rem;
-        border: 1px solid var(--border-color);
+        border: 1px solid var(--border);
         display: flex;
         align-items: center;
         gap: 1rem;
@@ -155,8 +333,8 @@
     }
     
     .med-icon {
-        width: 56px;
-        height: 56px;
+        width: 52px;
+        height: 52px;
         border-radius: 14px;
         display: flex;
         align-items: center;
@@ -177,7 +355,7 @@
     }
     
     .med-icon i {
-        font-size: 1.5rem;
+        font-size: 1.375rem;
         color: white;
     }
     
@@ -241,8 +419,8 @@
     }
     
     .action-btn {
-        width: 40px;
-        height: 40px;
+        width: 38px;
+        height: 38px;
         border-radius: 10px;
         border: none;
         display: flex;
@@ -278,7 +456,7 @@
         padding: 4rem 2rem;
         background: var(--bg-secondary);
         border-radius: 20px;
-        border: 2px dashed var(--border-color);
+        border: 2px dashed var(--border);
     }
     
     .empty-icon {
@@ -295,38 +473,6 @@
     .empty-icon i {
         font-size: 2rem;
         color: var(--text-muted);
-    }
-    
-    /* Emergency banner */
-    .emergency-banner {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem 1.25rem;
-        background: linear-gradient(135deg, #ef4444, #dc2626);
-        border-radius: 14px;
-        text-decoration: none;
-        margin-bottom: 1rem;
-        transition: transform 0.2s ease;
-    }
-    
-    .emergency-banner:hover {
-        transform: scale(1.01);
-    }
-    
-    .emergency-icon {
-        width: 44px;
-        height: 44px;
-        background: rgba(255,255,255,0.2);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .emergency-icon i {
-        font-size: 1.25rem;
-        color: white;
     }
     
     /* Section header */
@@ -365,158 +511,179 @@
     .fade-delay-3 { animation-delay: 0.15s; }
     .fade-delay-4 { animation-delay: 0.2s; }
     .fade-delay-5 { animation-delay: 0.25s; }
-    .fade-delay-6 { animation-delay: 0.3s; }
-    .fade-delay-7 { animation-delay: 0.35s; }
-    .fade-delay-8 { animation-delay: 0.4s; }
-    .fade-delay-9 { animation-delay: 0.45s; }
-    .fade-delay-10 { animation-delay: 0.5s; }
 </style>
 
-<div class="dashboard-grid fade-in">
-    <!-- Sidebar -->
-    <aside>
-        <div class="sidebar-card">
-            <!-- Stats Row -->
-            <div class="stats-row">
-                <div class="stat-item">
-                    <div class="stat-value">{{ medications|length }}</div>
-                    <div class="stat-label">Meds</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="dosesToday">-</div>
-                    <div class="stat-label">Today</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="takenToday">0</div>
-                    <div class="stat-label">Taken</div>
-                </div>
+<div class="dashboard-container fade-in">
+    <!-- AI Assistant Banner - Prominent at Top -->
+    <div class="ai-banner">
+        <div class="ai-banner-content">
+            <div class="ai-banner-icon">
+                <i class="bi bi-robot"></i>
             </div>
-            
-            <!-- Countdown Ring -->
-            <div class="progress-container">
-                <svg class="progress-ring" width="160" height="160">
-                    <defs>
-                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    <circle class="progress-ring-bg" cx="80" cy="80" r="65" />
-                    <circle class="progress-ring-fill" id="progressRing" cx="80" cy="80" r="65" />
-                </svg>
-                <div class="progress-center">
-                    <div class="progress-time" id="countdown">--:--</div>
-                    <div class="progress-label">Next dose</div>
-                </div>
+            <div class="ai-banner-text">
+                <h3>AI Health Assistant</h3>
+                <p>Get instant answers about symptoms, medications, and health questions with our AI-powered assistant.</p>
             </div>
-            
-            <!-- Quick Actions -->
-            <a href="/add_medication" class="quick-action">
-                <i class="bi bi-plus-circle"></i>
-                <span>Add medication</span>
+        </div>
+        <div class="ai-banner-actions">
+            <a href="{{ url_for('ai_assistant.chat_page') }}" class="ai-banner-btn primary">
+                <i class="bi bi-chat-dots"></i>
+                Start Chat
             </a>
-            <a href="/statistics" class="quick-action">
-                <i class="bi bi-bar-chart-line"></i>
-                <span>View statistics</span>
-            </a>
-            <a href="/print_guide" class="quick-action">
-                <i class="bi bi-printer"></i>
-                <span>Print guide</span>
+            <a href="{{ url_for('ai_assistant.ai_home') }}" class="ai-banner-btn secondary">
+                <i class="bi bi-grid"></i>
+                All AI Tools
             </a>
         </div>
-        
-        <!-- Emergency Banner -->
-        <a href="tel:0800123456" class="emergency-banner" style="margin-top: 1rem;">
-            <div class="emergency-icon">
-                <i class="bi bi-telephone"></i>
-            </div>
-            <div style="flex: 1;">
-                <p style="color: white; font-weight: 600; margin: 0; font-size: 0.9375rem;">Emergency</p>
-                <p style="color: rgba(255,255,255,0.8); font-size: 0.8125rem; margin: 0;">0800 123 456</p>
-            </div>
-            <i class="bi bi-arrow-right" style="color: rgba(255,255,255,0.7);"></i>
-        </a>
-    </aside>
-    
-    <!-- Main Content -->
-    <main>
-        <!-- Notifications -->
-        {% if notifications %}
-            {% for note in notifications %}
-                <div class="alert-custom {% if note.type == 'danger' %}alert-danger-custom{% else %}alert-info-custom{% endif %}" style="margin-bottom: 1rem;">
-                    <i class="bi {% if note.type == 'danger' %}bi-exclamation-triangle{% else %}bi-info-circle{% endif %}"></i>
-                    {{ note.message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-        
-        <!-- Section Header -->
-        <div class="section-header">
-            <h2 class="section-title">Your Medications</h2>
-            <span class="section-count">{{ medications|length }} active</span>
-        </div>
-        
-        <!-- Medication List -->
-        <div class="med-list">
-            {% for med in medications %}
-            <div class="med-item fade-in fade-delay-{{ loop.index }}">
-                <div class="med-icon {% if med.total_pills == 0 %}danger{% elif med.total_pills < 5 %}warning{% else %}default{% endif %} {% if med.total_pills == 0 %}pulse-urgent{% endif %}">
-                    <i class="bi bi-capsule"></i>
-                </div>
-                
-                <div class="med-details">
-                    <div class="med-name">{{ med.name }}</div>
-                    <div class="med-meta">
-                        <span class="med-meta-item">
-                            <i class="bi bi-clock"></i>
-                            {{ med.schedule_str }}
-                        </span>
-                        <span class="med-meta-item">
-                            <i class="bi bi-layers"></i>
-                            {{ med.dosage_per_day }} per day
-                        </span>
-                        <span class="pills-badge {% if med.total_pills == 0 %}danger{% elif med.total_pills < 5 %}warning{% else %}success{% endif %}">
-                            {% if med.total_pills == 0 %}
-                                Out of stock
-                            {% else %}
-                                {{ med.total_pills }} pills left
-                            {% endif %}
-                        </span>
+    </div>
+
+    <!-- Main Dashboard Grid -->
+    <div class="dashboard-grid">
+        <!-- Sidebar -->
+        <aside>
+            <div class="sidebar-card">
+                <!-- Stats Row -->
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <div class="stat-value">{{ medications|length }}</div>
+                        <div class="stat-label">Meds</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="dosesToday">-</div>
+                        <div class="stat-label">Today</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="takenToday">0</div>
+                        <div class="stat-label">Taken</div>
                     </div>
                 </div>
                 
-                <div class="med-actions">
-                    {% if med.total_pills > 0 %}
-                    <form action="/take_medication" method="POST" style="margin: 0;">
-                        <input type="hidden" name="med_id" value="{{ med.id }}">
-                        <button type="submit" class="action-btn take" title="Mark as taken">
-                            <i class="bi bi-check-lg"></i>
-                        </button>
-                    </form>
-                    {% endif %}
-                    <form action="/delete_medication" method="POST" style="margin: 0;">
-                        <input type="hidden" name="med_id" value="{{ med.id }}">
-                        <button type="submit" class="action-btn delete" title="Remove">
-                            <i class="bi bi-trash3"></i>
-                        </button>
-                    </form>
+                <!-- Countdown Ring -->
+                <div class="progress-container">
+                    <svg class="progress-ring" width="140" height="140">
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="progress-ring-bg" cx="70" cy="70" r="60" />
+                        <circle class="progress-ring-fill" id="progressRing" cx="70" cy="70" r="60" />
+                    </svg>
+                    <div class="progress-center">
+                        <div class="progress-time" id="countdown">--:--</div>
+                        <div class="progress-label">Next dose</div>
+                    </div>
                 </div>
-            </div>
-            {% else %}
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="bi bi-capsule"></i>
-                </div>
-                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">No medications yet</h3>
-                <p style="color: var(--text-muted); margin-bottom: 1.5rem; max-width: 280px; margin-left: auto; margin-right: auto;">Start tracking your medications to never miss a dose again</p>
-                <a href="/add_medication" class="btn-primary-custom" style="display: inline-flex;">
-                    <i class="bi bi-plus-lg"></i>
-                    Add your first medication
+                
+                <!-- Quick Actions -->
+                <a href="/add_medication" class="quick-action">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>Add medication</span>
+                </a>
+                <a href="/statistics" class="quick-action">
+                    <i class="bi bi-bar-chart-line"></i>
+                    <span>View statistics</span>
+                </a>
+                <a href="/print_guide" class="quick-action">
+                    <i class="bi bi-printer"></i>
+                    <span>Print guide</span>
                 </a>
             </div>
-            {% endfor %}
-        </div>
-    </main>
+            
+            <!-- Emergency Banner -->
+            <a href="tel:0800123456" class="emergency-banner">
+                <div class="emergency-icon">
+                    <i class="bi bi-telephone"></i>
+                </div>
+                <div style="flex: 1;">
+                    <p style="color: white; font-weight: 600; margin: 0; font-size: 0.875rem;">Emergency</p>
+                    <p style="color: rgba(255,255,255,0.8); font-size: 0.75rem; margin: 0;">0800 123 456</p>
+                </div>
+                <i class="bi bi-arrow-right" style="color: rgba(255,255,255,0.7);"></i>
+            </a>
+        </aside>
+        
+        <!-- Main Content -->
+        <main>
+            <!-- Notifications -->
+            {% if notifications %}
+                {% for note in notifications %}
+                    <div class="alert-custom {% if note.type == 'danger' %}alert-danger-custom{% else %}alert-info-custom{% endif %}" style="margin-bottom: 1rem;">
+                        <i class="bi {% if note.type == 'danger' %}bi-exclamation-triangle{% else %}bi-info-circle{% endif %}"></i>
+                        {{ note.message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- Section Header -->
+            <div class="section-header">
+                <h2 class="section-title">Your Medications</h2>
+                <span class="section-count">{{ medications|length }} active</span>
+            </div>
+            
+            <!-- Medication List -->
+            <div class="med-list">
+                {% for med in medications %}
+                <div class="med-item fade-in fade-delay-{{ loop.index }}">
+                    <div class="med-icon {% if med.total_pills == 0 %}danger{% elif med.total_pills < 5 %}warning{% else %}default{% endif %} {% if med.total_pills == 0 %}pulse-urgent{% endif %}">
+                        <i class="bi bi-capsule"></i>
+                    </div>
+                    
+                    <div class="med-details">
+                        <div class="med-name">{{ med.name }}</div>
+                        <div class="med-meta">
+                            <span class="med-meta-item">
+                                <i class="bi bi-clock"></i>
+                                {{ med.schedule_str }}
+                            </span>
+                            <span class="med-meta-item">
+                                <i class="bi bi-layers"></i>
+                                {{ med.dosage_per_day }} per day
+                            </span>
+                            <span class="pills-badge {% if med.total_pills == 0 %}danger{% elif med.total_pills < 5 %}warning{% else %}success{% endif %}">
+                                {% if med.total_pills == 0 %}
+                                    Out of stock
+                                {% else %}
+                                    {{ med.total_pills }} pills left
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="med-actions">
+                        {% if med.total_pills > 0 %}
+                        <form action="/take_medication" method="POST" style="margin: 0;">
+                            <input type="hidden" name="med_id" value="{{ med.id }}">
+                            <button type="submit" class="action-btn take" title="Mark as taken">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                        <form action="/delete_medication" method="POST" style="margin: 0;">
+                            <input type="hidden" name="med_id" value="{{ med.id }}">
+                            <button type="submit" class="action-btn delete" title="Remove">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="bi bi-capsule"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">No medications yet</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem; max-width: 280px; margin-left: auto; margin-right: auto;">Start tracking your medications to never miss a dose again</p>
+                    <a href="/add_medication" class="btn-primary-custom" style="display: inline-flex;">
+                        <i class="bi bi-plus-lg"></i>
+                        Add your first medication
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
 </div>
 
 <script>
@@ -550,7 +717,7 @@
         if (nextTime) {
             const countdownEl = document.getElementById('countdown');
             const ringEl = document.getElementById('progressRing');
-            const circumference = 2 * Math.PI * 65; // r=65
+            const circumference = 2 * Math.PI * 60;
 
             function tick() {
                 const now = new Date();
@@ -576,17 +743,17 @@
                     countdownEl.style.color = 'var(--warning)';
                 }
 
-                // Update ring (12 hour scale for visibility)
                 const totalMs = 12 * 60 * 60 * 1000;
                 const progress = Math.max(0, 1 - (diff / totalMs));
                 ringEl.style.strokeDashoffset = circumference * (1 - progress);
+
+                requestAnimationFrame(tick);
             }
 
             tick();
-            setInterval(tick, 1000);
         }
     }
 
-    document.addEventListener('DOMContentLoaded', updateCountdown);
+    updateCountdown();
 </script>
 {% endblock %}

@@ -16,7 +16,7 @@ def register():
 
             conn = get_db_connection()
             if conn is None:
-                return "DB connection failed"
+                return " DB connection failed"
 
             cur = conn.cursor()
 

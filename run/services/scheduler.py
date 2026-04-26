@@ -27,7 +27,7 @@ def send_reminder_emails(app, mail):
                     if user:
                         send_reminder_email(mail, user[0], med)
 
-                # Reschedule reminder
+                
                 schedule_str = str(med['schedule'])[:5]
                 hour, minute = map(int, schedule_str.split(':'))
                 next_reminder = now.replace(hour=hour, minute=minute, second=0, microsecond=0)

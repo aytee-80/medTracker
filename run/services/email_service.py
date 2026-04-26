@@ -25,7 +25,7 @@ def send_reminder_email(mail, user_email, med):
     )
     msg.body = f"""
 Hi there,
-It's time to take your medication "{med['name']}".
+It's time to take your medicationn "{med['name']}".
 Dosage: {med['dosage_per_day']} pill(s) per day.
 Please log in to confirm you've taken it.
 Best regards,

@@ -7,7 +7,7 @@ def education():
     if 'user_id' not in session:
         return redirect(url_for('main.home'))
     return render_template('education.html')
-
+#safety
 @misc.route('/safety')
 def safety():
     if 'user_id' not in session:

@@ -1,0 +1,282 @@
+{% extends "layout.html" %}
+{% block title %}AI Health Assistant - MedTracker{% endblock %}
+
+{% block content %}
+<style>
+    .ai-hero {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .ai-hero-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--accent), #06b6d4);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 8px 24px rgba(14, 165, 233, 0.3);
+    }
+    
+    .ai-hero-icon i {
+        font-size: 2.5rem;
+        color: white;
+    }
+    
+    .ai-hero h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .ai-hero p {
+        color: var(--text-muted);
+        font-size: 1rem;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .ai-features-grid {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 1.25rem;
+    }
+    
+    @media (min-width: 640px) {
+        .ai-features-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (min-width: 1024px) {
+        .ai-features-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+    
+    .ai-feature-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.75rem 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .ai-feature-card:hover {
+        border-color: var(--accent);
+        box-shadow: 0 8px 24px rgba(14, 165, 233, 0.15);
+        transform: translateY(-4px);
+    }
+    
+    .feature-icon-wrapper {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.25rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .feature-icon-wrapper.primary {
+        background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    }
+    
+    .feature-icon-wrapper.success {
+        background: linear-gradient(135deg, #10b981, #059669);
+    }
+    
+    .feature-icon-wrapper.info {
+        background: linear-gradient(135deg, #06b6d4, #0891b2);
+    }
+    
+    .feature-icon-wrapper.warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+    
+    .feature-icon-wrapper i {
+        font-size: 1.75rem;
+        color: white;
+    }
+    
+    .ai-feature-card h3 {
+        font-size: 1.0625rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.625rem;
+    }
+    
+    .ai-feature-card p {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin-bottom: 1.25rem;
+        flex: 1;
+    }
+    
+    .ai-feature-card .feature-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius);
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .feature-btn.primary {
+        background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        color: white;
+    }
+    
+    .feature-btn.primary:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+    }
+    
+    .feature-btn.success {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+    
+    .feature-btn.success:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+    
+    .feature-btn.info {
+        background: linear-gradient(135deg, #06b6d4, #0891b2);
+        color: white;
+    }
+    
+    .feature-btn.info:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+    }
+    
+    .feature-btn.warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+    
+    .feature-btn.warning:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    }
+    
+    .ai-disclaimer {
+        background: var(--bg-secondary);
+        border: 1px solid var(--warning);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .ai-disclaimer h5 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--warning);
+        margin-bottom: 0.5rem;
+    }
+    
+    .ai-disclaimer p {
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin: 0;
+    }
+</style>
+
+<div class="ai-hero fade-in">
+    <div class="ai-hero-icon">
+        <i class="bi bi-robot"></i>
+    </div>
+    <h1>AI Health Assistant</h1>
+    <p>Your intelligent companion for health questions and symptom analysis</p>
+</div>
+
+<div class="ai-features-grid">
+    <!-- Symptom Checker -->
+    <div class="ai-feature-card fade-in fade-delay-1">
+        <div class="feature-icon-wrapper primary">
+            <i class="bi bi-stethoscope"></i>
+        </div>
+        <h3>Symptom Checker</h3>
+        <p>Describe your symptoms and get AI-powered analysis and recommendations</p>
+        <a href="{{ url_for('ai_assistant.symptom_checker') }}" class="feature-btn primary">
+            <i class="bi bi-arrow-right-circle"></i>
+            Start Checking
+        </a>
+    </div>
+
+    <!-- Image Analysis -->
+    <div class="ai-feature-card fade-in fade-delay-2">
+        <div class="feature-icon-wrapper success">
+            <i class="bi bi-camera"></i>
+        </div>
+        <h3>Image Analysis</h3>
+        <p>Upload photos of rashes, skin conditions, or other visible symptoms</p>
+        <a href="{{ url_for('ai_assistant.image_analysis') }}" class="feature-btn success">
+            <i class="bi bi-upload"></i>
+            Upload Image
+        </a>
+    </div>
+
+    <!-- Medication Info -->
+    <div class="ai-feature-card fade-in fade-delay-3">
+        <div class="feature-icon-wrapper info">
+            <i class="bi bi-capsule"></i>
+        </div>
+        <h3>Medication Info</h3>
+        <p>Get detailed information about medications, side effects, and interactions</p>
+        <a href="{{ url_for('ai_assistant.medication_info_page') }}" class="feature-btn info">
+            <i class="bi bi-search"></i>
+            Search Meds
+        </a>
+    </div>
+
+    <!-- AI Chat -->
+    <div class="ai-feature-card fade-in fade-delay-4">
+        <div class="feature-icon-wrapper warning">
+            <i class="bi bi-chat-dots"></i>
+        </div>
+        <h3>AI Chat Assistant</h3>
+        <p>Ask any health-related question and get instant AI-powered answers</p>
+        <a href="{{ url_for('ai_assistant.chat_page') }}" class="feature-btn warning">
+            <i class="bi bi-chat-text"></i>
+            Start Chat
+        </a>
+    </div>
+</div>
+
+<!-- Disclaimer -->
+<div class="ai-disclaimer fade-in">
+    <h5>
+        <i class="bi bi-exclamation-triangle"></i>
+        Important Medical Disclaimer
+    </h5>
+    <p>
+        The AI assistant provides <strong>informational purposes only</strong> and is <strong>NOT a substitute</strong> for professional medical advice, diagnosis, or treatment. 
+        Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition. 
+        Never disregard professional medical advice or delay in seeking it because of something you have read here. 
+        If you think you may have a medical emergency, call your doctor or emergency services immediately.
+    </p>
+</div>
+{% endblock %}

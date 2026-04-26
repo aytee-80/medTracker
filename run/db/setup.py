@@ -34,7 +34,7 @@ def create_tables(app):
             conn.commit()
             print("Tables created or already exist.")
         except Exception as e:
-            print(f"Error creating tables: {e}")
+            print(f" Error creating tables: {e}")
             conn.rollback()
         finally:
             cur.close()

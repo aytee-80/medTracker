@@ -44,17 +44,17 @@ def dashboard():
             if med['last_taken'] != date.today() and med['total_pills'] > 0:
                 notifications.append({
                     "type": "info",
-                    "message": f"⏰ It's time to take {med['name']} ({med['dosage_per_day']} pill(s))."
+                    "message": f"It's time to take {med['name']} ({med['dosage_per_day']} pill(s))."
                 })
         if med['total_pills'] < med['dosage_per_day'] * 3 and med['total_pills'] > 0:
             notifications.append({
                 "type": "warning",
-                "message": f"⏳ Low pills for {med['name']}. Only {med['total_pills']} left."
+                "message": f"Low pills for {med['name']}. Only {med['total_pills']} left."
             })
         if med['total_pills'] <= 0:
             notifications.append({
                 "type": "danger",
-                "message": f"❌ You're out of pills for {med['name']}. Please refill."
+                "message": f"You're out of pills for {med['name']}. Please refill."
             })
 
     cur.close()

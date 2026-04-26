@@ -1,0 +1,1209 @@
+{% extends "layout.html" %}
+{% block title %}Image Analysis - MedTracker{% endblock %}
+
+{% block content %}
+<div class="image-analysis-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="bi bi-camera"></i>
+            </div>
+            <div class="header-text">
+                <h1>Image Analysis</h1>
+                <p>Upload an image for AI-powered medical image analysis</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Split Screen Layout -->
+    <div class="split-container">
+        <!-- Left Panel - Upload Form -->
+        <div class="input-panel">
+            <div class="panel-card sticky-panel">
+                <div class="panel-header">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    <span>Upload Image</span>
+                </div>
+                <div class="panel-body">
+                    <form id="imageForm" enctype="multipart/form-data">
+                        <!-- Drop Zone -->
+                        <div class="drop-zone" id="dropZone">
+                            <input type="file" id="image" name="image" accept="image/png,image/jpeg,image/gif" required>
+                            <div class="drop-zone-content">
+                                <div class="drop-icon">
+                                    <i class="bi bi-cloud-arrow-up"></i>
+                                </div>
+                                <p class="drop-text">Drag and drop your image here</p>
+                                <p class="drop-or">or</p>
+                                <button type="button" class="browse-btn" onclick="document.getElementById('image').click()">
+                                    <i class="bi bi-folder2-open"></i>
+                                    Browse Files
+                                </button>
+                                <p class="drop-hint">PNG, JPG, GIF (Max 10MB)</p>
+                            </div>
+                        </div>
+
+                        <!-- Image Preview -->
+                        <div id="previewContainer" class="preview-container d-none">
+                            <div class="preview-header">
+                                <span>Selected Image</span>
+                                <button type="button" class="remove-btn" onclick="removeImage()">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                            <div class="preview-wrapper">
+                                <img id="previewImg" class="preview-img" alt="Preview">
+                            </div>
+                            <p id="fileName" class="file-name"></p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-chat-left-text"></i>
+                                Describe Your Symptoms (optional)
+                            </label>
+                            <textarea id="symptoms" name="symptoms" class="form-textarea" rows="4"
+                                placeholder="Example: Itchy rash that appeared 2 days ago, getting worse. Located on inner arm."></textarea>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="analyzeBtn">
+                            <i class="bi bi-magic"></i>
+                            <span>Analyze Image</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Supported Images -->
+            <div class="info-card">
+                <div class="info-header">
+                    <i class="bi bi-images"></i>
+                    Supported Image Types
+                </div>
+                <div class="image-types">
+                    <div class="type-item">
+                        <i class="bi bi-bandaid"></i>
+                        <span>Skin Conditions</span>
+                    </div>
+                    <div class="type-item">
+                        <i class="bi bi-eye"></i>
+                        <span>Eye Issues</span>
+                    </div>
+                    <div class="type-item">
+                        <i class="bi bi-droplet"></i>
+                        <span>Rashes</span>
+                    </div>
+                    <div class="type-item">
+                        <i class="bi bi-hand-index"></i>
+                        <span>Nail Problems</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="tips-card">
+                <div class="tips-header">
+                    <i class="bi bi-lightbulb"></i>
+                    Tips for Better Results
+                </div>
+                <ul class="tips-list">
+                    <li><i class="bi bi-check-circle"></i> Use good lighting</li>
+                    <li><i class="bi bi-check-circle"></i> Keep camera steady</li>
+                    <li><i class="bi bi-check-circle"></i> Focus on the affected area</li>
+                    <li><i class="bi bi-check-circle"></i> Include size reference if possible</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Panel - Results -->
+        <div class="results-panel">
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-image"></i>
+                </div>
+                <h3>Upload an Image to Analyze</h3>
+                <p>Our AI will analyze your image and provide health insights based on visual patterns.</p>
+                <div class="empty-features">
+                    <div class="feature-item">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Secure upload</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="bi bi-lightning-charge"></i>
+                        <span>Fast analysis</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="bi bi-eye"></i>
+                        <span>Visual AI</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="loading-state d-none">
+                <div class="loading-visual">
+                    <div class="scan-container">
+                        <img id="loadingPreview" class="scan-image" alt="Analyzing">
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+                <h3>Analyzing Your Image</h3>
+                <p>Our AI is examining visual patterns and generating insights...</p>
+                <div class="loading-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <span class="progress-text">Processing...</span>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div id="results" class="results-content d-none">
+                <div class="results-header">
+                    <div class="results-title">
+                        <i class="bi bi-check-circle"></i>
+                        <h3>Analysis Complete</h3>
+                    </div>
+                    <button type="button" class="new-analysis-btn" onclick="resetForm()">
+                        <i class="bi bi-arrow-repeat"></i>
+                        New Analysis
+                    </button>
+                </div>
+
+                <!-- Analyzed Image -->
+                <div class="analyzed-image-container">
+                    <img id="analyzedImg" class="analyzed-image" alt="Analyzed image">
+                </div>
+
+                <!-- Analysis Results -->
+                <div id="analysisContent" class="analysis-content"></div>
+
+                <!-- Disclaimer -->
+                <div class="disclaimer">
+                    <div class="disclaimer-icon">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <div class="disclaimer-text">
+                        <strong>Important Notice</strong>
+                        <p>Image analysis is not definitive. Always consult a healthcare professional for accurate diagnosis, especially for skin conditions and visible symptoms.</p>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="action-buttons">
+                    <button type="button" class="action-btn secondary" onclick="resetForm()">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                        Analyze Another Image
+                    </button>
+                    <a href="{{ url_for('ai_assistant.chat_page') }}" class="action-btn primary">
+                        <i class="bi bi-chat-dots"></i>
+                        Ask Follow-up Questions
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Container */
+.image-analysis-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Page Header */
+.page-header {
+    padding: 2rem 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.header-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: white;
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+}
+
+.header-text h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+}
+
+.header-text p {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* Split Container */
+.split-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding-bottom: 3rem;
+}
+
+@media (min-width: 1024px) {
+    .split-container {
+        grid-template-columns: 400px 1fr;
+        gap: 2rem;
+    }
+}
+
+/* Input Panel */
+.input-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.sticky-panel {
+    position: sticky;
+    top: 1rem;
+}
+
+.panel-card {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.panel-header {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.panel-body {
+    padding: 1.5rem;
+}
+
+/* Drop Zone */
+.drop-zone {
+    position: relative;
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 2rem 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: var(--bg-primary);
+    margin-bottom: 1rem;
+}
+
+.drop-zone input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.drop-zone:hover,
+.drop-zone.dragover {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.drop-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.drop-icon i {
+    font-size: 1.75rem;
+    color: #10b981;
+}
+
+.drop-text {
+    color: var(--text-primary);
+    font-weight: 500;
+    margin: 0 0 0.5rem 0;
+}
+
+.drop-or {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    margin: 0.5rem 0;
+}
+
+.browse-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.browse-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.drop-hint {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    margin: 1rem 0 0 0;
+}
+
+/* Preview Container */
+.preview-container {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.remove-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.remove-btn:hover {
+    background: #ef4444;
+    border-color: #ef4444;
+    color: white;
+}
+
+.preview-wrapper {
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    background: var(--bg-tertiary, var(--bg-primary));
+}
+
+.preview-img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    object-fit: contain;
+}
+
+.file-name {
+    padding: 0.5rem 1rem 0.75rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.form-label i {
+    color: var(--text-muted);
+}
+
+.form-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+    line-height: 1.6;
+    transition: all 0.2s ease;
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+/* Submit Button */
+.submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Info Card */
+.info-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.info-header {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+}
+
+.info-header i {
+    color: #10b981;
+}
+
+.image-types {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.type-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 0.875rem;
+    background: var(--bg-primary);
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+
+.type-item i {
+    color: #10b981;
+}
+
+/* Tips Card */
+.tips-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.tips-header {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tips-header i {
+    color: #f59e0b;
+}
+
+.tips-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tips-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.tips-list li i {
+    color: #10b981;
+    font-size: 0.75rem;
+}
+
+/* Results Panel */
+.results-panel {
+    min-height: 500px;
+}
+
+/* Empty State */
+.empty-state {
+    background: var(--bg-secondary);
+    border: 2px dashed var(--border-color);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.empty-icon i {
+    font-size: 2rem;
+    color: #10b981;
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+}
+
+.empty-state > p {
+    color: var(--text-muted);
+    max-width: 320px;
+    margin: 0 auto 2rem;
+    line-height: 1.5;
+}
+
+.empty-features {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.feature-item i {
+    color: #10b981;
+}
+
+/* Loading State */
+.loading-state {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.loading-visual {
+    margin-bottom: 2rem;
+}
+
+.scan-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid #10b981;
+}
+
+.scan-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.scan-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #10b981, transparent);
+    animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+    0% { top: 0; }
+    50% { top: 100%; }
+    100% { top: 0; }
+}
+
+.loading-state h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+}
+
+.loading-state > p {
+    color: var(--text-muted);
+    margin: 0 0 1.5rem 0;
+}
+
+.loading-progress {
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.progress-bar {
+    height: 6px;
+    background: var(--bg-tertiary, var(--bg-primary));
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #10b981, #059669);
+    border-radius: 3px;
+    animation: progress 3s ease-out forwards;
+}
+
+@keyframes progress {
+    0% { width: 0%; }
+    50% { width: 70%; }
+    100% { width: 95%; }
+}
+
+.progress-text {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+
+/* Results Content */
+.results-content {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
+}
+
+.results-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.results-title i {
+    color: #10b981;
+    font-size: 1.25rem;
+}
+
+.results-title h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.new-analysis-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.875rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.new-analysis-btn:hover {
+    border-color: #10b981;
+    color: #10b981;
+}
+
+/* Analyzed Image */
+.analyzed-image-container {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: center;
+    background: var(--bg-tertiary, var(--bg-primary));
+    border-bottom: 1px solid var(--border-color);
+}
+
+.analyzed-image {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 12px;
+    object-fit: contain;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Analysis Content */
+.analysis-content {
+    padding: 1.5rem;
+    line-height: 1.7;
+    color: var(--text-primary);
+}
+
+.analysis-content .ai-section {
+    margin-bottom: 1.5rem;
+}
+
+.analysis-content .ai-header {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #10b981;
+    margin: 0 0 0.75rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.analysis-content .ai-paragraph {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+}
+
+.analysis-content .ai-list {
+    margin: 0 0 1rem 0;
+    padding-left: 0;
+    list-style: none;
+}
+
+.analysis-content .ai-list-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.5rem 0;
+    color: var(--text-primary);
+}
+
+.analysis-content .ai-list-item::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: #10b981;
+    border-radius: 50%;
+    margin-top: 0.5rem;
+    flex-shrink: 0;
+}
+
+.analysis-content .ai-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 10px;
+    margin: 1rem 0;
+}
+
+.analysis-content .ai-warning-icon {
+    color: #f59e0b;
+    font-size: 1.125rem;
+    flex-shrink: 0;
+}
+
+.analysis-content .ai-warning-text {
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+}
+
+/* Disclaimer */
+.disclaimer {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    background: rgba(245, 158, 11, 0.08);
+    border-top: 1px solid var(--border-color);
+}
+
+.disclaimer-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(245, 158, 11, 0.15);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f59e0b;
+    font-size: 1.125rem;
+    flex-shrink: 0;
+}
+
+.disclaimer-text strong {
+    display: block;
+    color: #f59e0b;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.disclaimer-text p {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1rem;
+    border-radius: 10px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.action-btn.secondary {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.action-btn.secondary:hover {
+    border-color: #10b981;
+    color: #10b981;
+}
+
+.action-btn.primary {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none;
+    color: white;
+}
+
+.action-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .empty-features {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .image-types {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+const fileInput = document.getElementById('image');
+const dropZone = document.getElementById('dropZone');
+const previewContainer = document.getElementById('previewContainer');
+const previewImg = document.getElementById('previewImg');
+const fileName = document.getElementById('fileName');
+let currentFile = null;
+
+// Drag and drop
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+});
+
+dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('dragover');
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length) {
+        fileInput.files = files;
+        showPreview(files[0]);
+    }
+});
+
+fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        showPreview(file);
+    }
+});
+
+function showPreview(file) {
+    currentFile = file;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        previewImg.src = e.target.result;
+        fileName.textContent = file.name;
+        dropZone.classList.add('d-none');
+        previewContainer.classList.remove('d-none');
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeImage() {
+    currentFile = null;
+    fileInput.value = '';
+    previewContainer.classList.add('d-none');
+    dropZone.classList.remove('d-none');
+}
+
+function formatAnalysis(text) {
+    let html = '';
+    const lines = text.split('\n');
+    let currentSection = [];
+    let inList = false;
+    
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+        if (!line) {
+            if (currentSection.length > 0) {
+                html += '<p class="ai-paragraph">' + currentSection.join(' ') + '</p>';
+                currentSection = [];
+            }
+            continue;
+        }
+        
+        // Headers
+        if (line.match(/^##\s*(.+)/) || line.match(/^(.+):$/) && line.length < 60) {
+            if (currentSection.length > 0) {
+                html += '<p class="ai-paragraph">' + currentSection.join(' ') + '</p>';
+                currentSection = [];
+            }
+            const headerText = line.replace(/^##\s*/, '').replace(/:$/, '');
+            html += '<div class="ai-section"><h4 class="ai-header">' + headerText + '</h4>';
+            continue;
+        }
+        
+        // Bullet points
+        if (line.match(/^[-*•]\s+(.+)/)) {
+            if (currentSection.length > 0) {
+                html += '<p class="ai-paragraph">' + currentSection.join(' ') + '</p>';
+                currentSection = [];
+            }
+            if (!inList) {
+                html += '<ul class="ai-list">';
+                inList = true;
+            }
+            const bulletText = line.replace(/^[-*•]\s+/, '');
+            html += '<li class="ai-list-item"><span>' + formatInlineText(bulletText) + '</span></li>';
+            continue;
+        }
+        
+        // Numbered lists
+        if (line.match(/^\d+[.)]\s+(.+)/)) {
+            if (currentSection.length > 0) {
+                html += '<p class="ai-paragraph">' + currentSection.join(' ') + '</p>';
+                currentSection = [];
+            }
+            if (!inList) {
+                html += '<ul class="ai-list">';
+                inList = true;
+            }
+            const listText = line.replace(/^\d+[.)]\s+/, '');
+            html += '<li class="ai-list-item"><span>' + formatInlineText(listText) + '</span></li>';
+            continue;
+        }
+        
+        // Warning patterns
+        if (line.match(/^(Warning|Note|Important|Caution):/i)) {
+            if (inList) {
+                html += '</ul>';
+                inList = false;
+            }
+            if (currentSection.length > 0) {
+                html += '<p class="ai-paragraph">' + currentSection.join(' ') + '</p>';
+                currentSection = [];
+            }
+            html += '<div class="ai-warning"><i class="bi bi-exclamation-triangle ai-warning-icon"></i><span class="ai-warning-text">' + line + '</span></div>';
+            continue;
+        }
+        
+        if (inList) {
+            html += '</ul>';
+            inList = false;
+        }
+        
+        currentSection.push(formatInlineText(line));
+    }
+    
+    if (inList) {
+        html += '</ul>';
+    }
+    if (currentSection.length > 0) {
+        html += '<p class="ai-paragraph">' + currentSection.join(' ') + '</p>';
+    }
+    
+    html += '</div>';
+    
+    return html;
+}
+
+function formatInlineText(text) {
+    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/__(.+?)__/g, '<strong>$1</strong>');
+    text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    text = text.replace(/_(.+?)_/g, '<em>$1</em>');
+    return text;
+}
+
+function resetForm() {
+    removeImage();
+    document.getElementById('symptoms').value = '';
+    document.getElementById('emptyState').classList.remove('d-none');
+    document.getElementById('results').classList.add('d-none');
+}
+
+document.getElementById('imageForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const loading = document.getElementById('loading');
+    const results = document.getElementById('results');
+    const emptyState = document.getElementById('emptyState');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const loadingPreview = document.getElementById('loadingPreview');
+    
+    // Set loading preview image
+    if (currentFile) {
+        loadingPreview.src = previewImg.src;
+    }
+    
+    // Show loading
+    emptyState.classList.add('d-none');
+    loading.classList.remove('d-none');
+    results.classList.add('d-none');
+    analyzeBtn.disabled = true;
+    
+    try {
+        const response = await fetch('{{ url_for("ai_assistant.upload_image") }}', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('analyzedImg').src = previewImg.src;
+            document.getElementById('analysisContent').innerHTML = formatAnalysis(data.analysis);
+            loading.classList.add('d-none');
+            results.classList.remove('d-none');
+        } else {
+            alert('Error: ' + data.error);
+            loading.classList.add('d-none');
+            emptyState.classList.remove('d-none');
+        }
+    } catch (error) {
+        alert('An error occurred. Please try again.');
+        loading.classList.add('d-none');
+        emptyState.classList.remove('d-none');
+    } finally {
+        analyzeBtn.disabled = false;
+    }
+});
+</script>
+{% endblock %}
