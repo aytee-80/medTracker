@@ -12,3 +12,4 @@ __pycache__/
 
 # VS Code settings (optional)
 .vscode/
+run/__pycache__/__init__.cpython-314.pyc
