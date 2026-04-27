@@ -30,7 +30,7 @@ def save_medication():
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO medications (user_id, name, total_pills, dosage_per_day, schedule, next_reminder)
+        INSERT INTO medications_v2 (user_id, name, total_pills, dosage_per_day, schedule, next_reminder)
         VALUES (%s, %s, %s, %s, %s, %s)
     """, (user_id, name, total_pills, dosage_per_day, schedule, next_reminder))
     conn.commit()
@@ -49,7 +49,7 @@ def take_medication():
 
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT total_pills, dosage_per_day FROM medications WHERE id = %s AND user_id = %s", (med_id, user_id))
+    cur.execute("SELECT total_pills, dosage_per_day FROM medications_v2 WHERE id = %s AND user_id = %s", (med_id, user_id))
     med = cur.fetchone()
 
     if med:
@@ -58,11 +58,11 @@ def take_medication():
         today = date.today()
 
         if new_count <= 0:
-            cur.execute("DELETE FROM medications WHERE id = %s AND user_id = %s", (med_id, user_id))
+            cur.execute("DELETE FROM medications_v2 WHERE id = %s AND user_id = %s", (med_id, user_id))
             flash("You're out of pills. Please refill.")
         else:
             cur.execute("""
-                UPDATE medications
+                UPDATE medications_v2
                 SET total_pills = %s, last_taken = %s
                 WHERE id = %s AND user_id = %s
             """, (new_count, today, med_id, user_id))
@@ -83,7 +83,7 @@ def delete_medication():
 
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("DELETE FROM medications WHERE id = %s AND user_id = %s", (med_id, user_id))
+    cur.execute("DELETE FROM medications_v2 WHERE id = %s AND user_id = %s", (med_id, user_id))
     conn.commit()
     cur.close()
     conn.close()
@@ -98,7 +98,7 @@ def print_guide():
     user_id = session['user_id']
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT id, name, dosage_per_day, total_pills, schedule, last_taken, description FROM medications WHERE user_id = %s", (user_id,))
+    cur.execute("SELECT id, name, dosage_per_day, total_pills, schedule, last_taken, description FROM medications_v2 WHERE user_id = %s", (user_id,))
     meds_data = cur.fetchall()
     columns = [desc[0] for desc in cur.description]
     medications = []

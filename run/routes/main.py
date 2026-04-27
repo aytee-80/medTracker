@@ -19,7 +19,7 @@ def dashboard():
     user_id = session['user_id']
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT id, name, dosage_per_day, total_pills, schedule, last_taken FROM medications WHERE user_id = %s", (user_id,))
+    cur.execute("SELECT id, name, dosage_per_day, total_pills, schedule, last_taken FROM medications_v2 WHERE user_id = %s", (user_id,))
     meds = cur.fetchall()
     columns = [desc[0] for desc in cur.description]
     medications = []

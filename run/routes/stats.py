@@ -17,7 +17,7 @@ def statistics():
     user_id = session['user_id']
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT name, dosage_per_day, total_pills, last_taken FROM medications WHERE user_id = %s", (user_id,))
+    cur.execute("SELECT name, dosage_per_day, total_pills, last_taken FROM medications_v2 WHERE user_id = %s", (user_id,))
     meds = cur.fetchall()
     stats_data = {
         "total_medications": len(meds),
@@ -55,7 +55,7 @@ def export_csv():
     user_id = session['user_id']
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT name, dosage_per_day, total_pills, last_taken FROM medications WHERE user_id = %s", (user_id,))
+    cur.execute("SELECT name, dosage_per_day, total_pills, last_taken FROM medications_v2 WHERE user_id = %s", (user_id,))
     meds = cur.fetchall()
     df = pd.DataFrame(meds, columns=['Name', 'Dosage per Day', 'Total Pills', 'Last Taken'])
 
@@ -76,7 +76,7 @@ def export_pdf():
     user_id = session['user_id']
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT name, dosage_per_day, total_pills, last_taken FROM medications WHERE user_id = %s", (user_id,))
+    cur.execute("SELECT name, dosage_per_day, total_pills, last_taken FROM medications_v2 WHERE user_id = %s", (user_id,))
     meds = cur.fetchall()
 
     buffer = io.BytesIO()

@@ -9,25 +9,27 @@ def create_tables(app):
         try:
             # Users Table
             cur.execute("""
-                CREATE TABLE IF NOT EXISTS users (
-                    id SERIAL PRIMARY KEY,
-                    email VARCHAR(255) UNIQUE NOT NULL,
-                    password VARCHAR(255) NOT NULL
+                CREATE TABLE IF NOT EXISTS users_v2 (
+                     id UUID PRIMARY KEY,
+                     email TEXT UNIQUE NOT NULL,
+                     username TEXT,
+                     profile_picture TEXT,
+                     created_at TIMESTAMP DEFAULT NOW()
                 )
             """)
 
             # Medications Table
             cur.execute("""
-                CREATE TABLE IF NOT EXISTS medications (
+                 CREATE TABLE IF NOT EXISTS medications_v2 (
                     id SERIAL PRIMARY KEY,
-                    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                    name VARCHAR(255) NOT NULL,
+                    user_id UUID NOT NULL,
+                    name TEXT NOT NULL,
                     total_pills INTEGER NOT NULL,
                     dosage_per_day INTEGER NOT NULL,
-                    schedule TIME WITHOUT TIME ZONE,
+                    schedule TIME,
                     description TEXT,
                     last_taken DATE,
-                    next_reminder TIMESTAMP WITHOUT TIME ZONE,
+                    next_reminder TIMESTAMP,
                     notify_email BOOLEAN DEFAULT TRUE
                 )
             """)

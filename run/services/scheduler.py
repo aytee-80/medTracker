@@ -13,7 +13,7 @@ def send_reminder_emails(app, mail):
             conn = get_db_connection()
             cur = conn.cursor()
             today = date.today()
-            cur.execute("SELECT * FROM medications WHERE notify_email = TRUE AND next_reminder <= NOW()")
+            cur.execute("SELECT * FROM medications_v2 WHERE notify_email = TRUE AND next_reminder <= NOW()")
             meds = cur.fetchall()
             columns = [desc[0] for desc in cur.description]
             meds_with_cols = [dict(zip(columns, row)) for row in meds]
@@ -33,7 +33,7 @@ def send_reminder_emails(app, mail):
                 next_reminder = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
                 if next_reminder <= now:
                     next_reminder += timedelta(days=1)
-                cur.execute("UPDATE medications SET next_reminder = %s WHERE id = %s", (next_reminder, med['id']))
+                cur.execute("UPDATE medications_v2 SET next_reminder = %s WHERE id = %s", (next_reminder, med['id']))
                 conn.commit()
             cur.close()
             conn.close()
