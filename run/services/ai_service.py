@@ -8,23 +8,23 @@ DEMO_MODE = getattr(config, 'AI_DEMO_MODE', False)
 
 # Demo fallback responses
 DEMO_RESPONSES = {
-    "symptoms": """🔍 **Sample Analysis (Demo Mode)**
+    "symptoms": """ **Sample Analysis (Demo Mode)**
 **Possible Conditions:** Mild viral infection, tension headache, or dehydration.
 **Recommendations:** Rest, hydrate, monitor temperature. OTC pain relief if appropriate.
 **When to see a doctor:** Fever >38.5°C for 3+ days, severe pain, confusion, or breathing difficulty.
-⚠️ *This is a demo response. Not medical advice.*""",
-    "image": """📷 **Image Analysis (Demo Mode)**
+ *This is a demo response. Not medical advice.*""",
+    "image": """ **Image Analysis (Demo Mode)**
 Observes skin irritation/rash pattern. Could be contact dermatitis, eczema, or heat rash.
 Keep area clean, avoid scratching, consider hydrocortisone cream.
 Seek care if spreading, painful, or accompanied by fever.
-⚠️ *Image analysis is not a substitute for professional diagnosis.*""",
-    "medication": """💊 **Medication Info (Demo Mode) - Ibuprofen**
+ *Image analysis is not a substitute for professional diagnosis.*""",
+    "medication": """ **Medication Info (Demo Mode) - Ibuprofen**
 Uses: Pain relief, fever reduction, anti-inflammatory.
 Dosage: 200-400mg every 4-6h (max 1200mg/day OTC).
 Side Effects: Stomach upset, dizziness.
-⚠️ Avoid if allergic to NSAIDs, pregnant, or have stomach/kidney issues.
+Avoid if allergic to NSAIDs, pregnant, or have stomach/kidney issues.
 Always follow professional medical guidance.""",
-    "chat": "👋 Hello! I'm your AI health assistant (Demo Mode). I can help with symptom questions, medication info, and general health tips. Remember: I'm for informational purposes only. What can I help you with?"
+    "chat": " Hello! I'm your AI health assistant (Demo Mode). I can help with symptom questions, medication info, and general health tips. Remember: I'm for informational purposes only. What can I help you with?"
 }
 
 def analyze_symptoms(symptoms: str, age: int = None, gender: str = None) -> dict:
@@ -48,7 +48,7 @@ Format with clear bullet points. ALWAYS include a disclaimer that this is NOT pr
         )
         return {"success": True, "analysis": response.choices[0].message.content}
     except Exception as e:
-        print(f"⚠️ Groq fallback: {e}")
+        print(f" Groq fallback: {e}")
         return {"success": True, "analysis": DEMO_RESPONSES["symptoms"], "fallback": True}
 
 def analyze_image(image_file, symptoms_description: str = "") -> dict:
@@ -85,7 +85,7 @@ ALWAYS include a medical disclaimer."""
         )
         return {"success": True, "analysis": response.choices[0].message.content}
     except Exception as e:
-        print(f"⚠️ Groq fallback (image): {e}")
+        print(f" Groq fallback (image): {e}")
         return {"success": True, "analysis": DEMO_RESPONSES["image"], "fallback": True}
 
 def get_medication_info(medication_name: str) -> dict:
@@ -106,7 +106,7 @@ Format clearly. ALWAYS state this is for informational purposes only."""
         )
         return {"success": True, "info": response.choices[0].message.content}
     except Exception as e:
-        print(f"⚠️ Groq fallback (medication): {e}")
+        print(f" Groq fallback (medication): {e}")
         return {"success": True, "info": DEMO_RESPONSES["medication"], "fallback": True}
 
 def chat_with_ai(message: str, conversation_history: list = None) -> dict:
@@ -138,5 +138,5 @@ Always be empathetic, clear, and emphasize consulting healthcare professionals. 
             "new_message": {"role": "assistant", "content": response.choices[0].message.content}
         }
     except Exception as e:
-        print(f"⚠️ Groq fallback (chat): {e}")
+        print(f" Groq fallback (chat): {e}")
         return {"success": True, "response": DEMO_RESPONSES["chat"], "fallback": True}
