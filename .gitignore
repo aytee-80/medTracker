@@ -13,3 +13,10 @@ __pycache__/
 # VS Code settings (optional)
 .vscode/
 run/__pycache__/__init__.cpython-314.pyc
+__pycache__/config.cpython-314.pyc
+run/__pycache__/__init__.cpython-314.pyc
+run/db/__pycache__/__init__.cpython-314.pyc
+run/db/__pycache__/connection.cpython-314.pyc
+run/db/__pycache__/setup.cpython-314.pyc
+run/routes/__pycache__/__init__.cpython-314.pyc
+run/routes/__pycache__/auth.cpython-314.pyc
