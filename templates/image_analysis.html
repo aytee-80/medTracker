@@ -2,269 +2,115 @@
 {% block title %}Image Analysis - MedTracker{% endblock %}
 
 {% block content %}
-<div class="image-analysis-container">
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="header-content">
-            <div class="header-icon">
-                <i class="bi bi-camera"></i>
-            </div>
-            <div class="header-text">
-                <h1>Image Analysis</h1>
-                <p>Upload an image for AI-powered medical image analysis</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Split Screen Layout -->
-    <div class="split-container">
-        <!-- Left Panel - Upload Form -->
-        <div class="input-panel">
-            <div class="panel-card sticky-panel">
-                <div class="panel-header">
-                    <i class="bi bi-cloud-arrow-up"></i>
-                    <span>Upload Image</span>
-                </div>
-                <div class="panel-body">
-                    <form id="imageForm" enctype="multipart/form-data">
-                        <!-- Drop Zone -->
-                        <div class="drop-zone" id="dropZone">
-                            <input type="file" id="image" name="image" accept="image/png,image/jpeg,image/gif" required>
-                            <div class="drop-zone-content">
-                                <div class="drop-icon">
-                                    <i class="bi bi-cloud-arrow-up"></i>
-                                </div>
-                                <p class="drop-text">Drag and drop your image here</p>
-                                <p class="drop-or">or</p>
-                                <button type="button" class="browse-btn" onclick="document.getElementById('image').click()">
-                                    <i class="bi bi-folder2-open"></i>
-                                    Browse Files
-                                </button>
-                                <p class="drop-hint">PNG, JPG, GIF (Max 10MB)</p>
-                            </div>
-                        </div>
-
-                        <!-- Image Preview -->
-                        <div id="previewContainer" class="preview-container d-none">
-                            <div class="preview-header">
-                                <span>Selected Image</span>
-                                <button type="button" class="remove-btn" onclick="removeImage()">
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
-                            </div>
-                            <div class="preview-wrapper">
-                                <img id="previewImg" class="preview-img" alt="Preview">
-                            </div>
-                            <p id="fileName" class="file-name"></p>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">
-                                <i class="bi bi-chat-left-text"></i>
-                                Describe Your Symptoms (optional)
-                            </label>
-                            <textarea id="symptoms" name="symptoms" class="form-textarea" rows="4"
-                                placeholder="Example: Itchy rash that appeared 2 days ago, getting worse. Located on inner arm."></textarea>
-                        </div>
-
-                        <button type="submit" class="submit-btn" id="analyzeBtn">
-                            <i class="bi bi-magic"></i>
-                            <span>Analyze Image</span>
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Supported Images -->
-            <div class="info-card">
-                <div class="info-header">
-                    <i class="bi bi-images"></i>
-                    Supported Image Types
-                </div>
-                <div class="image-types">
-                    <div class="type-item">
-                        <i class="bi bi-bandaid"></i>
-                        <span>Skin Conditions</span>
-                    </div>
-                    <div class="type-item">
-                        <i class="bi bi-eye"></i>
-                        <span>Eye Issues</span>
-                    </div>
-                    <div class="type-item">
-                        <i class="bi bi-droplet"></i>
-                        <span>Rashes</span>
-                    </div>
-                    <div class="type-item">
-                        <i class="bi bi-hand-index"></i>
-                        <span>Nail Problems</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tips -->
-            <div class="tips-card">
-                <div class="tips-header">
-                    <i class="bi bi-lightbulb"></i>
-                    Tips for Better Results
-                </div>
-                <ul class="tips-list">
-                    <li><i class="bi bi-check-circle"></i> Use good lighting</li>
-                    <li><i class="bi bi-check-circle"></i> Keep camera steady</li>
-                    <li><i class="bi bi-check-circle"></i> Focus on the affected area</li>
-                    <li><i class="bi bi-check-circle"></i> Include size reference if possible</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Right Panel - Results -->
-        <div class="results-panel">
-            <!-- Empty State -->
-            <div id="emptyState" class="empty-state">
-                <div class="empty-icon">
-                    <i class="bi bi-image"></i>
-                </div>
-                <h3>Upload an Image to Analyze</h3>
-                <p>Our AI will analyze your image and provide health insights based on visual patterns.</p>
-                <div class="empty-features">
-                    <div class="feature-item">
-                        <i class="bi bi-shield-check"></i>
-                        <span>Secure upload</span>
-                    </div>
-                    <div class="feature-item">
-                        <i class="bi bi-lightning-charge"></i>
-                        <span>Fast analysis</span>
-                    </div>
-                    <div class="feature-item">
-                        <i class="bi bi-eye"></i>
-                        <span>Visual AI</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Loading State -->
-            <div id="loading" class="loading-state d-none">
-                <div class="loading-visual">
-                    <div class="scan-container">
-                        <img id="loadingPreview" class="scan-image" alt="Analyzing">
-                        <div class="scan-line"></div>
-                    </div>
-                </div>
-                <h3>Analyzing Your Image</h3>
-                <p>Our AI is examining visual patterns and generating insights...</p>
-                <div class="loading-progress">
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
-                    </div>
-                    <span class="progress-text">Processing...</span>
-                </div>
-            </div>
-
-            <!-- Results -->
-            <div id="results" class="results-content d-none">
-                <div class="results-header">
-                    <div class="results-title">
-                        <i class="bi bi-check-circle"></i>
-                        <h3>Analysis Complete</h3>
-                    </div>
-                    <button type="button" class="new-analysis-btn" onclick="resetForm()">
-                        <i class="bi bi-arrow-repeat"></i>
-                        New Analysis
-                    </button>
-                </div>
-
-                <!-- Analyzed Image -->
-                <div class="analyzed-image-container">
-                    <img id="analyzedImg" class="analyzed-image" alt="Analyzed image">
-                </div>
-
-                <!-- Analysis Results -->
-                <div id="analysisContent" class="analysis-content"></div>
-
-                <!-- Disclaimer -->
-                <div class="disclaimer">
-                    <div class="disclaimer-icon">
-                        <i class="bi bi-exclamation-triangle"></i>
-                    </div>
-                    <div class="disclaimer-text">
-                        <strong>Important Notice</strong>
-                        <p>Image analysis is not definitive. Always consult a healthcare professional for accurate diagnosis, especially for skin conditions and visible symptoms.</p>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="action-buttons">
-                    <button type="button" class="action-btn secondary" onclick="resetForm()">
-                        <i class="bi bi-cloud-arrow-up"></i>
-                        Analyze Another Image
-                    </button>
-                    <a href="{{ url_for('ai_assistant.chat_page') }}" class="action-btn primary">
-                        <i class="bi bi-chat-dots"></i>
-                        Ask Follow-up Questions
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
 /* Container */
 .image-analysis-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 0.5rem;
 }
 
-/* Page Header */
+@media (min-width: 768px) {
+    .image-analysis-container {
+        padding: 0 1rem;
+    }
+}
+
+/* Page Header - Compact on mobile */
 .page-header {
-    padding: 2rem 0;
-    margin-bottom: 1.5rem;
+    padding: 1rem 0;
+    margin-bottom: 1rem;
     border-bottom: 1px solid var(--border-color);
+}
+
+@media (min-width: 768px) {
+    .page-header {
+        padding: 2rem 0;
+        margin-bottom: 1.5rem;
+    }
 }
 
 .header-content {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
+    gap: 0.875rem;
+}
+
+@media (min-width: 768px) {
+    .header-content {
+        gap: 1.25rem;
+    }
 }
 
 .header-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
     background: linear-gradient(135deg, #10b981, #059669);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.75rem;
+    font-size: 1.375rem;
     color: white;
-    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+    flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+    .header-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        font-size: 1.75rem;
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+    }
 }
 
 .header-text h1 {
-    font-size: 1.75rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin: 0 0 0.25rem 0;
+    margin: 0 0 0.125rem 0;
+}
+
+@media (min-width: 768px) {
+    .header-text h1 {
+        font-size: 1.75rem;
+        margin: 0 0 0.25rem 0;
+    }
 }
 
 .header-text p {
     color: var(--text-secondary);
     margin: 0;
-    font-size: 1rem;
+    font-size: 0.8125rem;
+}
+
+@media (min-width: 768px) {
+    .header-text p {
+        font-size: 1rem;
+    }
 }
 
 /* Split Container */
 .split-container {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    padding-bottom: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+    .split-container {
+        gap: 1.5rem;
+        padding-bottom: 3rem;
+    }
 }
 
 @media (min-width: 1024px) {
     .split-container {
-        grid-template-columns: 400px 1fr;
+        display: grid;
+        grid-template-columns: 380px 1fr;
         gap: 2rem;
     }
 }
@@ -273,45 +119,81 @@
 .input-panel {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
-.sticky-panel {
-    position: sticky;
-    top: 1rem;
+@media (min-width: 768px) {
+    .input-panel {
+        gap: 1rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .sticky-panel {
+        position: sticky;
+        top: 1rem;
+    }
 }
 
 .panel-card {
     background: var(--bg-secondary);
-    border-radius: 16px;
+    border-radius: 14px;
     border: 1px solid var(--border-color);
     overflow: hidden;
+}
+
+@media (min-width: 768px) {
+    .panel-card {
+        border-radius: 16px;
+    }
 }
 
 .panel-header {
     background: linear-gradient(135deg, #10b981, #059669);
     color: white;
-    padding: 1rem 1.25rem;
+    padding: 0.875rem 1rem;
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-size: 0.9375rem;
+}
+
+@media (min-width: 768px) {
+    .panel-header {
+        padding: 1rem 1.25rem;
+        font-size: 1rem;
+    }
 }
 
 .panel-body {
-    padding: 1.5rem;
+    padding: 1rem;
+}
+
+@media (min-width: 768px) {
+    .panel-body {
+        padding: 1.5rem;
+    }
 }
 
 /* Drop Zone */
 .drop-zone {
     position: relative;
     border: 2px dashed var(--border-color);
-    border-radius: 12px;
-    padding: 2rem 1rem;
+    border-radius: 10px;
+    padding: 1.5rem 1rem;
     text-align: center;
     transition: all 0.3s ease;
     background: var(--bg-primary);
-    margin-bottom: 1rem;
+    margin-bottom: 0.875rem;
+}
+
+@media (min-width: 768px) {
+    .drop-zone {
+        border-radius: 12px;
+        padding: 2rem 1rem;
+        margin-bottom: 1rem;
+    }
 }
 
 .drop-zone input {
@@ -331,48 +213,86 @@
 }
 
 .drop-icon {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 1rem;
+    margin: 0 auto 0.75rem;
+}
+
+@media (min-width: 768px) {
+    .drop-icon {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 1rem;
+    }
 }
 
 .drop-icon i {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     color: #10b981;
+}
+
+@media (min-width: 768px) {
+    .drop-icon i {
+        font-size: 1.75rem;
+    }
 }
 
 .drop-text {
     color: var(--text-primary);
     font-weight: 500;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.375rem 0;
+    font-size: 0.875rem;
+}
+
+@media (min-width: 768px) {
+    .drop-text {
+        margin: 0 0 0.5rem 0;
+        font-size: 1rem;
+    }
 }
 
 .drop-or {
     color: var(--text-muted);
-    font-size: 0.875rem;
-    margin: 0.5rem 0;
+    font-size: 0.8125rem;
+    margin: 0.375rem 0;
+}
+
+@media (min-width: 768px) {
+    .drop-or {
+        font-size: 0.875rem;
+        margin: 0.5rem 0;
+    }
 }
 
 .browse-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.25rem;
+    gap: 0.375rem;
+    padding: 0.5rem 1rem;
     background: linear-gradient(135deg, #10b981, #059669);
     color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 0.875rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
     z-index: 2;
+}
+
+@media (min-width: 768px) {
+    .browse-btn {
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+    }
 }
 
 .browse-btn:hover {
@@ -382,35 +302,56 @@
 
 .drop-hint {
     color: var(--text-muted);
-    font-size: 0.75rem;
-    margin: 1rem 0 0 0;
+    font-size: 0.6875rem;
+    margin: 0.75rem 0 0 0;
+}
+
+@media (min-width: 768px) {
+    .drop-hint {
+        font-size: 0.75rem;
+        margin: 1rem 0 0 0;
+    }
 }
 
 /* Preview Container */
 .preview-container {
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: 10px;
     overflow: hidden;
-    margin-bottom: 1rem;
+    margin-bottom: 0.875rem;
+}
+
+@media (min-width: 768px) {
+    .preview-container {
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
 }
 
 .preview-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 1rem;
+    padding: 0.625rem 0.875rem;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 500;
     color: var(--text-primary);
 }
 
+@media (min-width: 768px) {
+    .preview-header {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+}
+
 .remove-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
+    width: 26px;
+    height: 26px;
+    border-radius: 5px;
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
     color: var(--text-muted);
@@ -421,6 +362,14 @@
     transition: all 0.2s ease;
 }
 
+@media (min-width: 768px) {
+    .remove-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+    }
+}
+
 .remove-btn:hover {
     background: #ef4444;
     border-color: #ef4444;
@@ -428,22 +377,35 @@
 }
 
 .preview-wrapper {
-    padding: 1rem;
+    padding: 0.875rem;
     display: flex;
     justify-content: center;
     background: var(--bg-tertiary, var(--bg-primary));
 }
 
+@media (min-width: 768px) {
+    .preview-wrapper {
+        padding: 1rem;
+    }
+}
+
 .preview-img {
     max-width: 100%;
-    max-height: 200px;
-    border-radius: 8px;
+    max-height: 160px;
+    border-radius: 6px;
     object-fit: contain;
 }
 
+@media (min-width: 768px) {
+    .preview-img {
+        max-height: 200px;
+        border-radius: 8px;
+    }
+}
+
 .file-name {
-    padding: 0.5rem 1rem 0.75rem;
-    font-size: 0.75rem;
+    padding: 0.375rem 0.875rem 0.625rem;
+    font-size: 0.6875rem;
     color: var(--text-muted);
     margin: 0;
     text-align: center;
@@ -452,19 +414,40 @@
     text-overflow: ellipsis;
 }
 
+@media (min-width: 768px) {
+    .file-name {
+        padding: 0.5rem 1rem 0.75rem;
+        font-size: 0.75rem;
+    }
+}
+
 /* Form Elements */
 .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: 0.875rem;
+}
+
+@media (min-width: 768px) {
+    .form-group {
+        margin-bottom: 1rem;
+    }
 }
 
 .form-label {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
     font-weight: 500;
     color: var(--text-primary);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.375rem;
+}
+
+@media (min-width: 768px) {
+    .form-label {
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
 }
 
 .form-label i {
@@ -473,17 +456,26 @@
 
 .form-textarea {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.625rem 0.875rem;
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
-    border-radius: 10px;
+    border-radius: 8px;
     color: var(--text-primary);
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     resize: vertical;
-    min-height: 100px;
+    min-height: 80px;
     font-family: inherit;
     line-height: 1.6;
     transition: all 0.2s ease;
+}
+
+@media (min-width: 768px) {
+    .form-textarea {
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        font-size: 0.9375rem;
+        min-height: 100px;
+    }
 }
 
 .form-textarea:focus {
@@ -497,18 +489,27 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.375rem;
     width: 100%;
-    padding: 0.875rem 1.5rem;
+    padding: 0.75rem 1.25rem;
     background: linear-gradient(135deg, #10b981, #059669);
     color: white;
     border: none;
-    border-radius: 10px;
-    font-size: 1rem;
+    border-radius: 8px;
+    font-size: 0.9375rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+@media (min-width: 768px) {
+    .submit-btn {
+        gap: 0.5rem;
+        padding: 0.875rem 1.5rem;
+        border-radius: 10px;
+        font-size: 1rem;
+    }
 }
 
 .submit-btn:hover {
@@ -522,12 +523,19 @@
     transform: none;
 }
 
-/* Info Card */
+/* Info Card - Hidden on mobile */
 .info-card {
+    display: none;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .info-card {
+        display: block;
+    }
 }
 
 .info-header {
@@ -565,12 +573,19 @@
     color: #10b981;
 }
 
-/* Tips Card */
+/* Tips Card - Hidden on mobile */
 .tips-card {
+    display: none;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .tips-card {
+        display: block;
+    }
 }
 
 .tips-header {
@@ -608,61 +623,117 @@
 
 /* Results Panel */
 .results-panel {
-    min-height: 500px;
+    min-height: 300px;
+}
+
+@media (min-width: 768px) {
+    .results-panel {
+        min-height: 500px;
+    }
 }
 
 /* Empty State */
 .empty-state {
     background: var(--bg-secondary);
     border: 2px dashed var(--border-color);
-    border-radius: 16px;
-    padding: 3rem 2rem;
+    border-radius: 14px;
+    padding: 2rem 1.25rem;
     text-align: center;
 }
 
+@media (min-width: 768px) {
+    .empty-state {
+        border-radius: 16px;
+        padding: 3rem 2rem;
+    }
+}
+
 .empty-icon {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 1.5rem;
+    margin: 0 auto 1rem;
+}
+
+@media (min-width: 768px) {
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+    }
 }
 
 .empty-icon i {
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: #10b981;
 }
 
+@media (min-width: 768px) {
+    .empty-icon i {
+        font-size: 2rem;
+    }
+}
+
 .empty-state h3 {
-    font-size: 1.25rem;
+    font-size: 1.0625rem;
     font-weight: 600;
     color: var(--text-primary);
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.375rem 0;
+}
+
+@media (min-width: 768px) {
+    .empty-state h3 {
+        font-size: 1.25rem;
+        margin: 0 0 0.5rem 0;
+    }
 }
 
 .empty-state > p {
     color: var(--text-muted);
-    max-width: 320px;
-    margin: 0 auto 2rem;
+    max-width: 300px;
+    margin: 0 auto 1.25rem;
     line-height: 1.5;
+    font-size: 0.8125rem;
+}
+
+@media (min-width: 768px) {
+    .empty-state > p {
+        max-width: 320px;
+        margin: 0 auto 2rem;
+        font-size: 0.9375rem;
+    }
 }
 
 .empty-features {
     display: flex;
     justify-content: center;
-    gap: 2rem;
+    gap: 1rem;
     flex-wrap: wrap;
+}
+
+@media (min-width: 768px) {
+    .empty-features {
+        gap: 2rem;
+    }
 }
 
 .feature-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.375rem;
     color: var(--text-secondary);
-    font-size: 0.875rem;
+    font-size: 0.75rem;
+}
+
+@media (min-width: 768px) {
+    .feature-item {
+        gap: 0.5rem;
+        font-size: 0.875rem;
+    }
 }
 
 .feature-item i {
@@ -673,23 +744,44 @@
 .loading-state {
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 3rem 2rem;
+    border-radius: 14px;
+    padding: 2rem 1.25rem;
     text-align: center;
 }
 
+@media (min-width: 768px) {
+    .loading-state {
+        border-radius: 16px;
+        padding: 3rem 2rem;
+    }
+}
+
 .loading-visual {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .loading-visual {
+        margin-bottom: 2rem;
+    }
 }
 
 .scan-container {
     position: relative;
-    width: 200px;
-    height: 200px;
+    width: 150px;
+    height: 150px;
     margin: 0 auto;
-    border-radius: 12px;
+    border-radius: 10px;
     overflow: hidden;
     border: 2px solid #10b981;
+}
+
+@media (min-width: 768px) {
+    .scan-container {
+        width: 200px;
+        height: 200px;
+        border-radius: 12px;
+    }
 }
 
 .scan-image {
@@ -715,28 +807,56 @@
 }
 
 .loading-state h3 {
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--text-primary);
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.375rem 0;
+}
+
+@media (min-width: 768px) {
+    .loading-state h3 {
+        font-size: 1.125rem;
+        margin: 0 0 0.5rem 0;
+    }
 }
 
 .loading-state > p {
     color: var(--text-muted);
-    margin: 0 0 1.5rem 0;
+    margin: 0 0 1rem 0;
+    font-size: 0.8125rem;
+}
+
+@media (min-width: 768px) {
+    .loading-state > p {
+        margin: 0 0 1.5rem 0;
+        font-size: 0.9375rem;
+    }
 }
 
 .loading-progress {
-    max-width: 300px;
+    max-width: 280px;
     margin: 0 auto;
 }
 
+@media (min-width: 768px) {
+    .loading-progress {
+        max-width: 300px;
+    }
+}
+
 .progress-bar {
-    height: 6px;
+    height: 5px;
     background: var(--bg-tertiary, var(--bg-primary));
     border-radius: 3px;
     overflow: hidden;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.375rem;
+}
+
+@media (min-width: 768px) {
+    .progress-bar {
+        height: 6px;
+        margin-bottom: 0.5rem;
+    }
 }
 
 .progress-fill {
@@ -754,57 +874,109 @@
 }
 
 .progress-text {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     color: var(--text-muted);
+}
+
+@media (min-width: 768px) {
+    .progress-text {
+        font-size: 0.8125rem;
+    }
 }
 
 /* Results Content */
 .results-content {
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
+    border-radius: 14px;
     overflow: hidden;
+}
+
+@media (min-width: 768px) {
+    .results-content {
+        border-radius: 16px;
+    }
 }
 
 .results-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.5rem;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
     border-bottom: 1px solid var(--border-color);
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
+}
+
+@media (min-width: 768px) {
+    .results-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+    }
 }
 
 .results-title {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.375rem;
+}
+
+@media (min-width: 768px) {
+    .results-title {
+        gap: 0.5rem;
+    }
 }
 
 .results-title i {
     color: #10b981;
-    font-size: 1.25rem;
+    font-size: 1rem;
+}
+
+@media (min-width: 768px) {
+    .results-title i {
+        font-size: 1.25rem;
+    }
 }
 
 .results-title h3 {
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     color: var(--text-primary);
     margin: 0;
 }
 
+@media (min-width: 768px) {
+    .results-title h3 {
+        font-size: 1.0625rem;
+    }
+}
+
 .new-analysis-btn {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.375rem;
     padding: 0.5rem 0.875rem;
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
-    color: var(--text-secondary);
+    border-radius: 6px;
     font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.2s ease;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .new-analysis-btn {
+        width: auto;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+    }
 }
 
 .new-analysis-btn:hover {
@@ -814,155 +986,297 @@
 
 /* Analyzed Image */
 .analyzed-image-container {
-    padding: 1.5rem;
+    padding: 1rem;
     display: flex;
     justify-content: center;
     background: var(--bg-tertiary, var(--bg-primary));
     border-bottom: 1px solid var(--border-color);
 }
 
+@media (min-width: 768px) {
+    .analyzed-image-container {
+        padding: 1.5rem;
+    }
+}
+
 .analyzed-image {
     max-width: 100%;
-    max-height: 300px;
-    border-radius: 12px;
-    object-fit: contain;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    border-radius: 8px;
+    border: 2px solid #10b981;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+@media (min-width: 768px) {
+    .analyzed-image {
+        max-height: 300px;
+        border-radius: 12px;
+    }
 }
 
 /* Analysis Content */
 .analysis-content {
-    padding: 1.5rem;
-    line-height: 1.7;
-    color: var(--text-primary);
+    padding: 1rem;
 }
 
-.analysis-content .ai-section {
-    margin-bottom: 1.5rem;
+@media (min-width: 768px) {
+    .analysis-content {
+        padding: 1.5rem;
+    }
 }
 
-.analysis-content .ai-header {
-    font-size: 1rem;
+.analysis-content h4 {
+    font-size: 0.9375rem;
     font-weight: 600;
-    color: #10b981;
-    margin: 0 0 0.75rem 0;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border-color);
+    color: var(--accent);
+    margin: 1rem 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
 }
 
-.analysis-content .ai-paragraph {
-    margin: 0 0 1rem 0;
+@media (min-width: 768px) {
+    .analysis-content h4 {
+        font-size: 1rem;
+        margin: 1.25rem 0 0.625rem 0;
+        gap: 0.5rem;
+    }
+}
+
+.analysis-content h4:first-child {
+    margin-top: 0;
+}
+
+.analysis-content h4::before {
+    content: '';
+    width: 3px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+}
+
+.analysis-content p {
     color: var(--text-primary);
+    line-height: 1.6;
+    margin: 0 0 0.75rem 0;
+    font-size: 0.875rem;
 }
 
-.analysis-content .ai-list {
-    margin: 0 0 1rem 0;
-    padding-left: 0;
+@media (min-width: 768px) {
+    .analysis-content p {
+        margin: 0 0 0.875rem 0;
+        font-size: 0.9375rem;
+    }
+}
+
+.analysis-content ul {
+    margin: 0.5rem 0;
+    padding: 0;
     list-style: none;
 }
 
-.analysis-content .ai-list-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.625rem;
-    padding: 0.5rem 0;
-    color: var(--text-primary);
+@media (min-width: 768px) {
+    .analysis-content ul {
+        margin: 0.625rem 0;
+    }
 }
 
-.analysis-content .ai-list-item::before {
-    content: "";
-    width: 6px;
-    height: 6px;
+.analysis-content li {
+    position: relative;
+    padding-left: 1rem;
+    margin-bottom: 0.375rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+@media (min-width: 768px) {
+    .analysis-content li {
+        padding-left: 1.25rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.9375rem;
+    }
+}
+
+.analysis-content li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.5rem;
+    width: 5px;
+    height: 5px;
     background: #10b981;
     border-radius: 50%;
-    margin-top: 0.5rem;
-    flex-shrink: 0;
 }
 
-.analysis-content .ai-warning {
+@media (min-width: 768px) {
+    .analysis-content li::before {
+        top: 0.625rem;
+        width: 6px;
+        height: 6px;
+    }
+}
+
+.analysis-content .warning-note {
     display: flex;
     align-items: flex-start;
-    gap: 0.75rem;
-    padding: 1rem;
-    background: rgba(245, 158, 11, 0.1);
-    border: 1px solid rgba(245, 158, 11, 0.3);
-    border-radius: 10px;
-    margin: 1rem 0;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+    padding: 0.625rem 0.875rem;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid var(--warning);
+    border-radius: 6px;
+    font-size: 0.8125rem;
 }
 
-.analysis-content .ai-warning-icon {
-    color: #f59e0b;
-    font-size: 1.125rem;
+@media (min-width: 768px) {
+    .analysis-content .warning-note {
+        gap: 0.625rem;
+        margin: 1rem 0;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+    }
+}
+
+.analysis-content .warning-note i {
+    color: var(--warning);
     flex-shrink: 0;
-}
-
-.analysis-content .ai-warning-text {
-    color: var(--text-primary);
-    font-size: 0.9375rem;
+    margin-top: 0.125rem;
 }
 
 /* Disclaimer */
 .disclaimer {
     display: flex;
-    gap: 1rem;
-    padding: 1.25rem 1.5rem;
-    background: rgba(245, 158, 11, 0.08);
-    border-top: 1px solid var(--border-color);
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin: 1rem;
+    padding: 0.875rem;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid var(--danger);
+    border-radius: 10px;
+}
+
+@media (min-width: 768px) {
+    .disclaimer {
+        gap: 1rem;
+        margin: 1.5rem;
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+    }
 }
 
 .disclaimer-icon {
-    width: 40px;
-    height: 40px;
-    background: rgba(245, 158, 11, 0.15);
-    border-radius: 10px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(239, 68, 68, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #f59e0b;
-    font-size: 1.125rem;
     flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+    .disclaimer-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+    }
+}
+
+.disclaimer-icon i {
+    color: var(--danger);
+    font-size: 1rem;
+}
+
+@media (min-width: 768px) {
+    .disclaimer-icon i {
+        font-size: 1.125rem;
+    }
 }
 
 .disclaimer-text strong {
     display: block;
-    color: #f59e0b;
-    font-size: 0.875rem;
+    color: var(--danger);
+    font-size: 0.8125rem;
     margin-bottom: 0.25rem;
 }
 
+@media (min-width: 768px) {
+    .disclaimer-text strong {
+        font-size: 0.875rem;
+    }
+}
+
 .disclaimer-text p {
-    margin: 0;
-    font-size: 0.8125rem;
     color: var(--text-secondary);
+    font-size: 0.75rem;
+    margin: 0;
     line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+    .disclaimer-text p {
+        font-size: 0.8125rem;
+    }
 }
 
 /* Action Buttons */
 .action-buttons {
     display: flex;
-    gap: 1rem;
-    padding: 1.25rem 1.5rem;
+    flex-direction: column;
+    gap: 0.625rem;
+    padding: 1rem;
     border-top: 1px solid var(--border-color);
 }
 
+@media (min-width: 768px) {
+    .action-buttons {
+        flex-direction: row;
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+}
+
 .action-btn {
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    padding: 0.875rem 1rem;
-    border-radius: 10px;
-    font-size: 0.9375rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    gap: 0.375rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
     text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: none;
+    flex: 1;
+}
+
+@media (min-width: 768px) {
+    .action-btn {
+        gap: 0.5rem;
+        padding: 0.875rem 1.5rem;
+        border-radius: 10px;
+        font-size: 0.9375rem;
+    }
+}
+
+.action-btn.primary {
+    background: linear-gradient(135deg, var(--accent), #0284c7);
+    color: white;
+}
+
+.action-btn.primary:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
 }
 
 .action-btn.secondary {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
+    background: var(--bg-tertiary, var(--bg-primary));
     color: var(--text-primary);
+    border: 1px solid var(--border-color);
 }
 
 .action-btn.secondary:hover {
@@ -970,43 +1284,233 @@
     color: #10b981;
 }
 
-.action-btn.primary {
-    background: linear-gradient(135deg, #10b981, #059669);
-    border: none;
-    color: white;
-}
-
-.action-btn.primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-    .action-buttons {
-        flex-direction: column;
-    }
-    
-    .empty-features {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .image-types {
-        grid-template-columns: 1fr;
-    }
+/* Utility */
+.d-none {
+    display: none !important;
 }
 </style>
 
+<div class="image-analysis-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="bi bi-camera"></i>
+            </div>
+            <div class="header-text">
+                <h1>Image Analysis</h1>
+                <p>Upload an image for AI-powered analysis</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Split Screen Layout -->
+    <div class="split-container">
+        <!-- Left Panel - Upload Form -->
+        <div class="input-panel">
+            <div class="panel-card sticky-panel">
+                <div class="panel-header">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    <span>Upload Image</span>
+                </div>
+                <div class="panel-body">
+                    <form id="imageForm" enctype="multipart/form-data">
+                        <!-- Drop Zone -->
+                        <div class="drop-zone" id="dropZone">
+                            <input type="file" id="image" name="image" accept="image/png,image/jpeg,image/gif" required>
+                            <div class="drop-zone-content">
+                                <div class="drop-icon">
+                                    <i class="bi bi-cloud-arrow-up"></i>
+                                </div>
+                                <p class="drop-text">Drag and drop your image</p>
+                                <p class="drop-or">or</p>
+                                <button type="button" class="browse-btn" onclick="document.getElementById('image').click()">
+                                    <i class="bi bi-folder2-open"></i>
+                                    Browse Files
+                                </button>
+                                <p class="drop-hint">PNG, JPG, GIF (Max 10MB)</p>
+                            </div>
+                        </div>
+
+                        <!-- Image Preview -->
+                        <div id="previewContainer" class="preview-container d-none">
+                            <div class="preview-header">
+                                <span>Selected Image</span>
+                                <button type="button" class="remove-btn" onclick="removeImage()">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                            <div class="preview-wrapper">
+                                <img id="previewImg" class="preview-img" alt="Preview">
+                            </div>
+                            <p id="fileName" class="file-name"></p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-chat-left-text"></i>
+                                Describe Your Symptoms (optional)
+                            </label>
+                            <textarea id="symptoms" name="symptoms" class="form-textarea" rows="3"
+                                placeholder="Example: Itchy rash that appeared 2 days ago..."></textarea>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="analyzeBtn">
+                            <i class="bi bi-magic"></i>
+                            <span>Analyze Image</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Supported Images - Desktop only -->
+            <div class="info-card">
+                <div class="info-header">
+                    <i class="bi bi-images"></i>
+                    Supported Image Types
+                </div>
+                <div class="image-types">
+                    <div class="type-item">
+                        <i class="bi bi-bandaid"></i>
+                        <span>Skin Conditions</span>
+                    </div>
+                    <div class="type-item">
+                        <i class="bi bi-eye"></i>
+                        <span>Eye Issues</span>
+                    </div>
+                    <div class="type-item">
+                        <i class="bi bi-droplet"></i>
+                        <span>Rashes</span>
+                    </div>
+                    <div class="type-item">
+                        <i class="bi bi-hand-index"></i>
+                        <span>Nail Problems</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips - Desktop only -->
+            <div class="tips-card">
+                <div class="tips-header">
+                    <i class="bi bi-lightbulb"></i>
+                    Tips for Better Results
+                </div>
+                <ul class="tips-list">
+                    <li><i class="bi bi-check-circle"></i> Use good lighting</li>
+                    <li><i class="bi bi-check-circle"></i> Keep camera steady</li>
+                    <li><i class="bi bi-check-circle"></i> Focus on the affected area</li>
+                    <li><i class="bi bi-check-circle"></i> Include size reference if possible</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Panel - Results -->
+        <div class="results-panel">
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-image"></i>
+                </div>
+                <h3>Upload an Image to Analyze</h3>
+                <p>Our AI will analyze your image and provide health insights based on visual patterns.</p>
+                <div class="empty-features">
+                    <div class="feature-item">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Secure</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="bi bi-lightning-charge"></i>
+                        <span>Fast</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="bi bi-eye"></i>
+                        <span>Visual AI</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="loading-state d-none">
+                <div class="loading-visual">
+                    <div class="scan-container">
+                        <img id="loadingPreview" class="scan-image" alt="Analyzing">
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+                <h3>Analyzing Your Image</h3>
+                <p>Our AI is examining visual patterns...</p>
+                <div class="loading-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <span class="progress-text">Processing...</span>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div id="results" class="results-content d-none">
+                <div class="results-header">
+                    <div class="results-title">
+                        <i class="bi bi-check-circle"></i>
+                        <h3>Analysis Complete</h3>
+                    </div>
+                    <button type="button" class="new-analysis-btn" onclick="resetForm()">
+                        <i class="bi bi-arrow-repeat"></i>
+                        New Analysis
+                    </button>
+                </div>
+
+                <!-- Analyzed Image -->
+                <div class="analyzed-image-container">
+                    <img id="analyzedImg" class="analyzed-image" alt="Analyzed image">
+                </div>
+
+                <!-- Analysis Results -->
+                <div id="analysisContent" class="analysis-content"></div>
+
+                <!-- Disclaimer -->
+                <div class="disclaimer">
+                    <div class="disclaimer-icon">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <div class="disclaimer-text">
+                        <strong>Important Notice</strong>
+                        <p>Image analysis is not definitive. Always consult a healthcare professional for accurate diagnosis.</p>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="action-buttons">
+                    <button type="button" class="action-btn secondary" onclick="resetForm()">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                        Analyze Another
+                    </button>
+                    <a href="{{ url_for('ai_assistant.chat_page') }}" class="action-btn primary">
+                        <i class="bi bi-chat-dots"></i>
+                        Ask Questions
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-const fileInput = document.getElementById('image');
 const dropZone = document.getElementById('dropZone');
+const imageInput = document.getElementById('image');
 const previewContainer = document.getElementById('previewContainer');
 const previewImg = document.getElementById('previewImg');
 const fileName = document.getElementById('fileName');
-let currentFile = null;
+const imageForm = document.getElementById('imageForm');
+const analyzeBtn = document.getElementById('analyzeBtn');
+const emptyState = document.getElementById('emptyState');
+const loading = document.getElementById('loading');
+const results = document.getElementById('results');
+const loadingPreview = document.getElementById('loadingPreview');
+const analyzedImg = document.getElementById('analyzedImg');
+const analysisContent = document.getElementById('analysisContent');
 
-// Drag and drop
+// Drag and drop handlers
 dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
     dropZone.classList.add('dragover');
@@ -1020,23 +1524,22 @@ dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropZone.classList.remove('dragover');
     const files = e.dataTransfer.files;
-    if (files.length) {
-        fileInput.files = files;
+    if (files.length > 0 && files[0].type.startsWith('image/')) {
+        imageInput.files = files;
         showPreview(files[0]);
     }
 });
 
-fileInput.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        showPreview(file);
+// File input change handler
+imageInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        showPreview(e.target.files[0]);
     }
 });
 
 function showPreview(file) {
-    currentFile = file;
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = (e) => {
         previewImg.src = e.target.result;
         fileName.textContent = file.name;
         dropZone.classList.add('d-none');
@@ -1046,137 +1549,96 @@ function showPreview(file) {
 }
 
 function removeImage() {
-    currentFile = null;
-    fileInput.value = '';
+    imageInput.value = '';
     previewContainer.classList.add('d-none');
     dropZone.classList.remove('d-none');
 }
 
-function formatAnalysis(text) {
-    let html = '';
-    const lines = text.split('\n');
-    let currentSection = [];
+function formatAnalysisResponse(text) {
+    let html = text;
+    
+    // Convert **bold** to <strong>
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    
+    // Convert *italic* to <em>
+    html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    
+    // Convert headers (lines ending with : or starting with ##)
+    html = html.replace(/^##\s*(.+)$/gm, '<h4>$1</h4>');
+    html = html.replace(/^([A-Z][^:\n]{2,30}):$/gm, '<h4>$1</h4>');
+    
+    // Convert warning/note patterns
+    html = html.replace(/^(Warning|Note|Important|Caution):\s*(.+)$/gim, 
+        '<div class="warning-note"><i class="bi bi-exclamation-triangle-fill"></i><span>$2</span></div>');
+    
+    // Convert bullet points (-, *, •)
+    html = html.replace(/^[-*•]\s+(.+)$/gm, '<li>$1</li>');
+    
+    // Convert numbered lists
+    html = html.replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>');
+    
+    // Wrap consecutive <li> in <ul>
     let inList = false;
+    const lines = html.split('\n');
+    const processedLines = [];
     
     for (let i = 0; i < lines.length; i++) {
-        let line = lines[i].trim();
-        if (!line) {
-            if (currentSection.length > 0) {
-                html += '<p class="ai-paragraph">' + currentSection.join(' ') + '</p>';
-                currentSection = [];
-            }
-            continue;
-        }
+        const line = lines[i].trim();
+        const isListItem = line.startsWith('<li>');
         
-        // Headers
-        if (line.match(/^##\s*(.+)/) || line.match(/^(.+):$/) && line.length < 60) {
-            if (currentSection.length > 0) {
-                html += '<p class="ai-paragraph">' + currentSection.join(' ') + '</p>';
-                currentSection = [];
-            }
-            const headerText = line.replace(/^##\s*/, '').replace(/:$/, '');
-            html += '<div class="ai-section"><h4 class="ai-header">' + headerText + '</h4>';
-            continue;
-        }
-        
-        // Bullet points
-        if (line.match(/^[-*•]\s+(.+)/)) {
-            if (currentSection.length > 0) {
-                html += '<p class="ai-paragraph">' + currentSection.join(' ') + '</p>';
-                currentSection = [];
-            }
-            if (!inList) {
-                html += '<ul class="ai-list">';
-                inList = true;
-            }
-            const bulletText = line.replace(/^[-*•]\s+/, '');
-            html += '<li class="ai-list-item"><span>' + formatInlineText(bulletText) + '</span></li>';
-            continue;
-        }
-        
-        // Numbered lists
-        if (line.match(/^\d+[.)]\s+(.+)/)) {
-            if (currentSection.length > 0) {
-                html += '<p class="ai-paragraph">' + currentSection.join(' ') + '</p>';
-                currentSection = [];
-            }
-            if (!inList) {
-                html += '<ul class="ai-list">';
-                inList = true;
-            }
-            const listText = line.replace(/^\d+[.)]\s+/, '');
-            html += '<li class="ai-list-item"><span>' + formatInlineText(listText) + '</span></li>';
-            continue;
-        }
-        
-        // Warning patterns
-        if (line.match(/^(Warning|Note|Important|Caution):/i)) {
-            if (inList) {
-                html += '</ul>';
-                inList = false;
-            }
-            if (currentSection.length > 0) {
-                html += '<p class="ai-paragraph">' + currentSection.join(' ') + '</p>';
-                currentSection = [];
-            }
-            html += '<div class="ai-warning"><i class="bi bi-exclamation-triangle ai-warning-icon"></i><span class="ai-warning-text">' + line + '</span></div>';
-            continue;
-        }
-        
-        if (inList) {
-            html += '</ul>';
+        if (isListItem && !inList) {
+            processedLines.push('<ul>');
+            inList = true;
+        } else if (!isListItem && inList) {
+            processedLines.push('</ul>');
             inList = false;
         }
         
-        currentSection.push(formatInlineText(line));
+        if (line) {
+            processedLines.push(line);
+        }
     }
     
     if (inList) {
-        html += '</ul>';
-    }
-    if (currentSection.length > 0) {
-        html += '<p class="ai-paragraph">' + currentSection.join(' ') + '</p>';
+        processedLines.push('</ul>');
     }
     
-    html += '</div>';
+    html = processedLines.join('\n');
+    
+    // Split by double newlines for paragraphs
+    const blocks = html.split(/\n\n+/);
+    html = blocks.map(block => {
+        block = block.trim();
+        if (!block) return '';
+        if (block.startsWith('<h4>') || block.startsWith('<ul>') || block.startsWith('<div class="warning-note">')) {
+            return block;
+        }
+        if (!block.startsWith('<')) {
+            return `<p>${block.replace(/\n/g, '<br>')}</p>`;
+        }
+        return block;
+    }).join('');
     
     return html;
-}
-
-function formatInlineText(text) {
-    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    text = text.replace(/__(.+?)__/g, '<strong>$1</strong>');
-    text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
-    text = text.replace(/_(.+?)_/g, '<em>$1</em>');
-    return text;
 }
 
 function resetForm() {
     removeImage();
     document.getElementById('symptoms').value = '';
-    document.getElementById('emptyState').classList.remove('d-none');
-    document.getElementById('results').classList.add('d-none');
+    results.classList.add('d-none');
+    emptyState.classList.remove('d-none');
 }
 
-document.getElementById('imageForm').addEventListener('submit', async function(e) {
+imageForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const formData = new FormData(this);
-    const loading = document.getElementById('loading');
-    const results = document.getElementById('results');
-    const emptyState = document.getElementById('emptyState');
-    const analyzeBtn = document.getElementById('analyzeBtn');
-    const loadingPreview = document.getElementById('loadingPreview');
+    const formData = new FormData(imageForm);
     
-    // Set loading preview image
-    if (currentFile) {
-        loadingPreview.src = previewImg.src;
-    }
-    
-    // Show loading
+    // Show loading state
     emptyState.classList.add('d-none');
-    loading.classList.remove('d-none');
     results.classList.add('d-none');
+    loading.classList.remove('d-none');
+    loadingPreview.src = previewImg.src;
     analyzeBtn.disabled = true;
     
     try {
@@ -1187,23 +1649,23 @@ document.getElementById('imageForm').addEventListener('submit', async function(e
         
         const data = await response.json();
         
-        if (data.success) {
-            document.getElementById('analyzedImg').src = previewImg.src;
-            document.getElementById('analysisContent').innerHTML = formatAnalysis(data.analysis);
-            loading.classList.add('d-none');
+        loading.classList.add('d-none');
+        
+        if (data.analysis) {
+            analyzedImg.src = previewImg.src;
+            analysisContent.innerHTML = formatAnalysisResponse(data.analysis);
             results.classList.remove('d-none');
-        } else {
-            alert('Error: ' + data.error);
-            loading.classList.add('d-none');
+        } else if (data.error) {
             emptyState.classList.remove('d-none');
+            alert('Error: ' + data.error);
         }
     } catch (error) {
-        alert('An error occurred. Please try again.');
         loading.classList.add('d-none');
         emptyState.classList.remove('d-none');
-    } finally {
-        analyzeBtn.disabled = false;
+        alert('Error connecting to server. Please try again.');
     }
+    
+    analyzeBtn.disabled = false;
 });
 </script>
 {% endblock %}

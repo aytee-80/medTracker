@@ -12,7 +12,3 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 
 
-HEADERS = {
-    "apikey": SUPABASE_KEY,
-    "Content-Type": "application/json"
-}
