@@ -1,20 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Learn - MedTracker{% endblock %}
-{% block title %}Learn - MedTracker{% endblock %}
 
 {% block content %}
-<div style="max-width: 800px; margin: 0 auto;">
-    <!-- Back Button -->
-    <a href="/dashboard" class="btn-secondary-custom fade-in" style="margin-bottom: 1.5rem;">
-        <i class="bi bi-arrow-left"></i>
-        Back to Dashboard
-    </a>
-
-    <!-- Page Header -->
-    <div class="page-header fade-in fade-delay-1">
-        <h1 class="page-title">Medication Education</h1>
-        <p class="page-subtitle">Learn more about your medications and how to use them safely</p>
-    </div>
 <div style="max-width: 800px; margin: 0 auto;">
     <!-- Back Button -->
     <a href="/dashboard" class="btn-secondary-custom fade-in" style="margin-bottom: 1.5rem;">
@@ -82,106 +69,9 @@
                     <p style="font-size: 0.8125rem; color: var(--text-muted); margin: 0;">Store medications in a cool, dry place away from direct sunlight.</p>
                 </div>
             </div>
-    <div class="card-custom fade-in fade-delay-2" style="padding: 1.5rem; margin-bottom: 1.5rem;">
-        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
-            <div style="width: 40px; height: 40px; background: rgba(239, 68, 68, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                <i class="bi bi-play-circle" style="color: var(--danger);"></i>
-            </div>
-            <h2 style="font-size: 1.125rem; font-weight: 600; margin: 0;">Understanding Your Medications</h2>
-        </div>
-        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px;">
-            <iframe 
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
-                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
-                allowfullscreen
-                title="Understanding Your Medications"
-            ></iframe>
         </div>
     </div>
 
-    <!-- Quick Tips -->
-    <div class="card-custom fade-in fade-delay-3" style="padding: 1.5rem; margin-bottom: 1.5rem;">
-        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
-            <div style="width: 40px; height: 40px; background: var(--warning-light); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                <i class="bi bi-lightbulb" style="color: var(--warning);"></i>
-            </div>
-            <h2 style="font-size: 1.125rem; font-weight: 600; margin: 0;">Quick Tips</h2>
-        </div>
-        <div style="display: grid; gap: 1rem;">
-            <div style="display: flex; align-items: flex-start; gap: 1rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 12px;">
-                <div style="width: 32px; height: 32px; background: var(--bg-secondary); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <i class="bi bi-clock" style="color: var(--accent); font-size: 0.875rem;"></i>
-                </div>
-                <div>
-                    <h3 style="font-size: 0.9375rem; font-weight: 600; margin-bottom: 0.25rem;">Take at the Same Time</h3>
-                    <p style="font-size: 0.8125rem; color: var(--text-muted); margin: 0;">Consistency helps your body maintain steady medication levels.</p>
-                </div>
-            </div>
-            <div style="display: flex; align-items: flex-start; gap: 1rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 12px;">
-                <div style="width: 32px; height: 32px; background: var(--bg-secondary); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <i class="bi bi-cup-hot" style="color: var(--success); font-size: 0.875rem;"></i>
-                </div>
-                <div>
-                    <h3 style="font-size: 0.9375rem; font-weight: 600; margin-bottom: 0.25rem;">Food and Water</h3>
-                    <p style="font-size: 0.8125rem; color: var(--text-muted); margin: 0;">Some medications work better with food. Always drink water when taking pills.</p>
-                </div>
-            </div>
-            <div style="display: flex; align-items: flex-start; gap: 1rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 12px;">
-                <div style="width: 32px; height: 32px; background: var(--bg-secondary); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <i class="bi bi-thermometer-half" style="color: var(--warning); font-size: 0.875rem;"></i>
-                </div>
-                <div>
-                    <h3 style="font-size: 0.9375rem; font-weight: 600; margin-bottom: 0.25rem;">Proper Storage</h3>
-                    <p style="font-size: 0.8125rem; color: var(--text-muted); margin: 0;">Store medications in a cool, dry place away from direct sunlight.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- External Resources -->
-    <div class="card-custom fade-in fade-delay-4" style="padding: 1.5rem;">
-        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
-            <div style="width: 40px; height: 40px; background: rgba(14, 165, 233, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                <i class="bi bi-globe" style="color: var(--accent);"></i>
-            </div>
-            <h2 style="font-size: 1.125rem; font-weight: 600; margin: 0;">Trusted Resources</h2>
-        </div>
-        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem;">
-            These websites provide reliable, up-to-date information about medications and health.
-        </p>
-        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-            <a href="https://medlineplus.gov/" target="_blank" rel="noopener noreferrer" class="card-custom" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; text-decoration: none;">
-                <div style="width: 48px; height: 48px; background: #0057b8; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <i class="bi bi-hospital" style="color: white; font-size: 1.25rem;"></i>
-                </div>
-                <div style="flex: 1;">
-                    <h3 style="font-size: 0.9375rem; font-weight: 600; margin-bottom: 0.125rem; color: var(--text-primary);">MedlinePlus</h3>
-                    <p style="font-size: 0.8125rem; color: var(--text-muted); margin: 0;">Trusted health information from the NIH</p>
-                </div>
-                <i class="bi bi-arrow-up-right" style="color: var(--text-muted);"></i>
-            </a>
-            <a href="https://www.drugs.com/" target="_blank" rel="noopener noreferrer" class="card-custom" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; text-decoration: none;">
-                <div style="width: 48px; height: 48px; background: #1a73e8; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <i class="bi bi-capsule" style="color: white; font-size: 1.25rem;"></i>
-                </div>
-                <div style="flex: 1;">
-                    <h3 style="font-size: 0.9375rem; font-weight: 600; margin-bottom: 0.125rem; color: var(--text-primary);">Drugs.com</h3>
-                    <p style="font-size: 0.8125rem; color: var(--text-muted); margin: 0;">Comprehensive medication guide and pill identifier</p>
-                </div>
-                <i class="bi bi-arrow-up-right" style="color: var(--text-muted);"></i>
-            </a>
-            <a href="https://www.webmd.com/drugs2/default.htm" target="_blank" rel="noopener noreferrer" class="card-custom" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; text-decoration: none;">
-                <div style="width: 48px; height: 48px; background: #e53935; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <i class="bi bi-journal-medical" style="color: white; font-size: 1.25rem;"></i>
-                </div>
-                <div style="flex: 1;">
-                    <h3 style="font-size: 0.9375rem; font-weight: 600; margin-bottom: 0.125rem; color: var(--text-primary);">WebMD</h3>
-                    <p style="font-size: 0.8125rem; color: var(--text-muted); margin: 0;">Prescription drug information and interactions</p>
-                </div>
-                <i class="bi bi-arrow-up-right" style="color: var(--text-muted);"></i>
-            </a>
-        </div>
-    </div>
     <!-- External Resources -->
     <div class="card-custom fade-in fade-delay-4" style="padding: 1.5rem;">
         <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
