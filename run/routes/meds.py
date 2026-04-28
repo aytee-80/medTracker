@@ -116,11 +116,7 @@ def take_medication():
             }
         
         flash("✓ Dose marked as taken!", "success")
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({
-                "success": True,
-                "message": "Dose taken"
-            })
+        
         return redirect(url_for('main.dashboard'))
         
     except Exception as e:
