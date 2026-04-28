@@ -8,7 +8,7 @@
 
 ## See The Application Live 
 * Link : https://medtracker.up.railway.app/
-* I deployed it using render.
+* I deployed it using railway.
 * Please be patient with it, might take a while to load.
 
 
