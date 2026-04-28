@@ -7,7 +7,7 @@
 ---
 
 ## See The Application Live 
-* Link : https://medication-app2.onrender.com
+* Link : https://medtracker.up.railway.app/
 * I deployed it using render.
 * Please be patient with it, might take a while to load.
 
