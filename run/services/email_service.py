@@ -3,7 +3,7 @@ import email_config
 
 def send_welcome_email(mail, email):
     msg = Message(
-        subject="🎉 Welcome to Medication Tracker!",
+        subject=" Welcome to Medication Tracker!",
         sender=email_config.EMAIL_HOST_USER,
         recipients=[email]
     )
@@ -19,7 +19,7 @@ Medication Tracker Team
 
 def send_reminder_email(mail, user_email, med):
     msg = Message(
-        subject="⏰ Medication Reminder: " + med['name'],
+        subject=" Medication Reminder: " + med['name'],
         sender=email_config.EMAIL_HOST_USER,
         recipients=[user_email]
     )

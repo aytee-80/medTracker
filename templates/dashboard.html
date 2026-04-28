@@ -511,31 +511,204 @@
     .fade-delay-3 { animation-delay: 0.15s; }
     .fade-delay-4 { animation-delay: 0.2s; }
     .fade-delay-5 { animation-delay: 0.25s; }
+
+    /* =========================
+   MOBILE RESPONSIVE LAYER
+   ========================= */
+.ai-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    width: 28px;
+    height: 28px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(0,0,0,0.25);
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    z-index: 10;
+}
+
+.ai-close-btn:hover {
+    background: rgba(0,0,0,0.4);
+}
+/* === MOBILE DOSE ROW FIXES === */
+@media (max-width: 768px) {
+    /* Stack medication items vertically */
+    .med-item {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+    
+    /* Dose rows: full width, centered */
+    .dose-row {
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.5rem !important;
+        padding: 0.75rem;
+        background: var(--bg-tertiary);
+        border-radius: 12px;
+        margin: 0.25rem 0;
+        width: 100%;
+    }
+    
+    .dose-row .med-meta-item {
+        justify-content: center;
+        width: 100%;
+        text-align: center;
+    }
+    
+    .dose-row > div:last-child {
+        width: 100%;
+        justify-content: center !important;
+    }
+    
+    /* Touch-friendly buttons */
+    .action-btn, .dose-btn {
+        width: 44px !important;
+        height: 44px !important;
+        border-radius: 12px;
+    }
+    
+    /* Hide desktop tooltip on mobile */
+    .dose-btn[title]:hover:disabled::after {
+        display: none !important;
+    }
+    
+    /* Show time hint below button */
+    .time-hint {
+        display: block !important;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        text-align: center;
+        margin-top: 0.25rem;
+    }
+    
+    /* Emergency banner: fixed bottom */
+    .emergency-banner {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-radius: 0 !important;
+        padding: 0.75rem 1rem !important;
+        z-index: 999;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+    
+    /* Add padding to main content so it doesn't hide behind emergency banner */
+    main {
+        padding-bottom: 70px !important;
+    }
+}/* === DESKTOP HOVER TOOLTIP (only show on desktop) === */
+
+/* === Dose Row & Button States === */
+.dose-row {
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--border);
+}
+.dose-row:last-child {
+    border-bottom: none;
+}
+
+/* Disabled button state */
+.dose-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+    background: var(--bg-tertiary) !important;
+    color: var(--text-muted) !important;
+}
+
+/* Tooltip for disabled buttons */
+.dose-btn[title]:hover:disabled::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.4rem 0.7rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    margin-bottom: 0.5rem;
+}
+
+/* Taken badge */
+.pills-badge.success {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+}
+
+/* Mobile tweaks */
+@media (max-width: 576px) {
+    .dose-row {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+    }
+    .dose-row > div:last-child {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    .action-btn {
+        width: 34px !important;
+        height: 34px !important;
+    }
+}
 </style>
 
-<div class="dashboard-container fade-in">
+<div class="dashboard-container fade-in mobile-safe">
     <!-- AI Assistant Banner - Prominent at Top -->
-    <div class="ai-banner">
-        <div class="ai-banner-content">
-            <div class="ai-banner-icon">
-                <i class="bi bi-robot"></i>
-            </div>
-            <div class="ai-banner-text">
-                <h3>AI Health Assistant</h3>
-                <p>Get instant answers about symptoms, medications, and health questions with our AI-powered assistant.</p>
-            </div>
+    <div class="ai-banner" id="aiBanner">
+    
+    <div class="ai-banner-content">
+        <div class="ai-banner-icon">
+            <i class="bi bi-robot"></i>
         </div>
-        <div class="ai-banner-actions">
-            <a href="{{ url_for('ai_assistant.chat_page') }}" class="ai-banner-btn primary">
-                <i class="bi bi-chat-dots"></i>
-                Start Chat
-            </a>
-            <a href="{{ url_for('ai_assistant.ai_home') }}" class="ai-banner-btn secondary">
-                <i class="bi bi-grid"></i>
-                All AI Tools
-            </a>
+
+        <div class="ai-banner-text">
+            <h3>AI Health Assistant</h3>
+            <p>Get instant answers about symptoms, medications, and health questions.</p>
         </div>
     </div>
+
+    <div class="ai-banner-actions">
+        <a href="{{ url_for('ai_assistant.chat_page') }}" class="ai-banner-btn primary">
+            <i class="bi bi-chat-dots"></i>
+            Start Chat
+        </a>
+
+        <a href="{{ url_for('ai_assistant.ai_home') }}" class="ai-banner-btn secondary">
+            <i class="bi bi-grid"></i>
+            All AI Tools
+        </a>
+    </div>
+
+    <!-- CLOSE BUTTON -->
+    <button class="ai-close-btn" onclick="hideAIBanner()">
+        <i class="bi bi-x"></i>
+    </button>
+
+</div>
 
     <!-- Main Dashboard Grid -->
     <div class="dashboard-grid">
@@ -621,54 +794,75 @@
                 <h2 class="section-title">Your Medications</h2>
                 <span class="section-count">{{ medications|length }} active</span>
             </div>
-            
             <!-- Medication List -->
             <div class="med-list">
                 {% for med in medications %}
-                <div class="med-item fade-in fade-delay-{{ loop.index }}">
+                <div class="med-item fade-in fade-delay-{{ loop.index }}" data-med-id="{{ med.id }}">
+                    <!-- Medication Icon -->
                     <div class="med-icon {% if med.total_pills == 0 %}danger{% elif med.total_pills < 5 %}warning{% else %}default{% endif %} {% if med.total_pills == 0 %}pulse-urgent{% endif %}">
                         <i class="bi bi-capsule"></i>
                     </div>
                     
+                    <!-- Medication Details -->
                     <div class="med-details">
                         <div class="med-name">{{ med.name }}</div>
-                        <div class="med-meta">
-                            <span class="med-meta-item">
-                                <i class="bi bi-clock"></i>
-                                {{ med.schedule_str }}
+                        
+                        <!-- Dose Rows (One per scheduled time) -->
+                        {% if med.doses %}
+                            {% for dose in med.doses %}
+                            <div class="dose-row" style="display:flex;align-items:center;gap:0.75rem;margin:0.5rem 0;justify-content:space-between;flex-wrap:wrap;">
+                                <span class="med-meta-item">
+                                    <i class="bi bi-clock"></i> 
+                                    <strong>{{ dose.time }}</strong> 
+                                    <span style="color:var(--text-muted);">({{ dose.pills }} pill{{ 's' if dose.pills != 1 else '' }})</span>
+                                </span>
+                                
+                                <!-- Take Button / Status Badge -->
+                                <div style="display:flex;align-items:center;gap:0.5rem;">
+                                    {% if med.total_pills > 0 and dose.status == 'pending' %}
+                                    <form class="dose-form" style="margin:0;" data-dose-id="{{ dose.id }}" data-dose-time="{{ dose.time }}" data-dose-pills="{{ dose.pills }}">
+                                        <input type="hidden" name="dose_id" value="{{ dose.id }}">
+                                        <button type="submit" class="action-btn take dose-btn" style="width:36px;height:36px;" title="Mark as taken">
+                                            <i class="bi bi-check-lg" style="font-size:0.9rem;"></i>
+                                        </button>
+                                    </form>
+                                    {% elif dose.status == 'taken' %}
+                                    <span class="pills-badge success" style="padding:0.3rem 0.7rem;font-size:0.75rem;display:flex;align-items:center;gap:0.3rem;">
+                                        <i class="bi bi-check-circle-fill"></i> Taken
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <span class="med-meta-item" style="color:var(--text-muted);">
+                                <i class="bi bi-info-circle"></i> No doses scheduled
                             </span>
+                        {% endif %}
+                        
+                        <!-- Meta Footer -->
+                        <div class="med-meta" style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);">
                             <span class="med-meta-item">
-                                <i class="bi bi-layers"></i>
-                                {{ med.dosage_per_day }} per day
+                                <i class="bi bi-layers"></i> {{ med.dosage_per_day }} per day
                             </span>
-                            <span class="pills-badge {% if med.total_pills == 0 %}danger{% elif med.total_pills < 5 %}warning{% else %}success{% endif %}">
-                                {% if med.total_pills == 0 %}
-                                    Out of stock
-                                {% else %}
-                                    {{ med.total_pills }} pills left
-                                {% endif %}
+                            <span class="pills-badge {% if med.total_pills == 0 %}danger{% elif med.total_pills < 5 %}warning{% else %}success{% endif %}" id="pills-{{ med.id }}">
+                                {{ med.total_pills }} pills left
                             </span>
                         </div>
                     </div>
                     
+                    <!-- Actions (Delete only - Take moved to per-dose) -->
                     <div class="med-actions">
-                        {% if med.total_pills > 0 %}
-                        <form action="/take_medication" method="POST" style="margin: 0;">
-                            <input type="hidden" name="med_id" value="{{ med.id }}">
-                            <button type="submit" class="action-btn take" title="Mark as taken">
-                                <i class="bi bi-check-lg"></i>
-                            </button>
-                        </form>
-                        {% endif %}
                         <form action="/delete_medication" method="POST" style="margin: 0;">
                             <input type="hidden" name="med_id" value="{{ med.id }}">
-                            <button type="submit" class="action-btn delete" title="Remove">
+                            <button type="submit" class="action-btn delete" title="Remove medication">
                                 <i class="bi bi-trash3"></i>
                             </button>
                         </form>
                     </div>
                 </div>
                 {% else %}
+                <!-- Empty State -->
                 <div class="empty-state">
                     <div class="empty-icon">
                         <i class="bi bi-capsule"></i>
@@ -685,75 +879,337 @@
         </main>
     </div>
 </div>
-
 <script>
-    // Set doses today count
-    document.getElementById('dosesToday').textContent = '{{ medications|length }}';
-    
-    // Countdown timer
-    function updateCountdown() {
-        const meds = document.querySelectorAll('.med-meta-item');
-        const now = new Date();
-        let nextTime = null;
+    // === Global State ===
+    let countdownInterval = null;
+    let timeCheckInterval = null;
 
-        meds.forEach(el => {
-            const text = el.textContent.trim();
-            const timeMatch = text.match(/(\d{1,2}):(\d{2})/);
-            if (!timeMatch) return;
+    // === Initialize ===
+    document.addEventListener('DOMContentLoaded', function() {
+        initDoseButtons();
+        updateTakenCount();
+        startCountdown();
+        startTimeValidation(); // ← NEW: Check time every 30s
+        
+        // Refresh taken count every 30 seconds
+        setInterval(updateTakenCount, 30000);
+    });
 
-            const hours = parseInt(timeMatch[1]);
-            const minutes = parseInt(timeMatch[2]);
-            let nextDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
-
-            if (now > nextDate) {
-                nextDate.setDate(nextDate.getDate() + 1);
+    // === Enable Dose Buttons with Time Validation ===
+    function initDoseButtons() {
+        document.querySelectorAll('.dose-form').forEach(form => {
+            const btn = form.querySelector('.dose-btn');
+            const doseTime = form.dataset.doseTime;
+            const doseRow = form.closest('.dose-row');
+            
+            // Add hint span for mobile
+            if (!doseRow.querySelector('.time-hint')) {
+                const hint = document.createElement('span');
+                hint.className = 'time-hint';
+                doseRow.appendChild(hint);
             }
-
-            if (!nextTime || nextDate < nextTime) {
-                nextTime = nextDate;
-            }
+            
+            // Initial check
+            updateTimeButtonState(btn, doseTime, doseRow);
+            
+            // AJAX submit handler
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (btn.disabled) return;
+                
+                const doseId = form.dataset.doseId;
+                const medItem = form.closest('.med-item');
+                const pillsBadge = medItem.querySelector('[id^="pills-"]');
+                const medName = medItem.querySelector('.med-name').textContent;
+                
+                // Disable button during request
+                const originalBtnHTML = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+                
+                // Inside form.addEventListener('submit', ...)
+fetch('/take_medication', {
+    method: 'POST',
+    headers: { 
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'   // ✅ ADD THIS
+    },
+    body: new URLSearchParams({
+        'dose_id': doseId
+    })
+})
+.then(res => {
+    // Always try to parse as JSON, even on redirect
+    return res.json().catch(() => ({ success: true, message: 'OK' }));
+})
+.then(data => {
+    if (data.success) {
+        markDoseAsTaken(form, medItem, pillsBadge, parseInt(form.dataset.dosePills));
+        updateTakenCount();  // This will now hit /api/taken_count
+        showToast(`${medName} dose taken!`, 'success');
+    } else {
+        throw new Error(data.error || 'Failed');
+    }
+})
+.catch(err => {
+    console.error('Take dose error:', err);
+    showToast('Could not mark dose. Try refreshing.', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-lg"></i>';
+});
+            });
         });
+    }
 
-        if (nextTime) {
-            const countdownEl = document.getElementById('countdown');
-            const ringEl = document.getElementById('progressRing');
-            const circumference = 2 * Math.PI * 60;
-
-            function tick() {
-                const now = new Date();
-                const diff = nextTime - now;
-
-                if (diff <= 0) {
-                    countdownEl.textContent = "Now!";
-                    countdownEl.style.color = 'var(--success)';
-                    ringEl.style.strokeDashoffset = 0;
-                    return;
-                }
-
-                const hours = Math.floor(diff / (1000 * 60 * 60));
-                const minutes = Math.floor((diff / (1000 * 60)) % 60);
-                const seconds = Math.floor((diff / 1000) % 60);
-
-                if (hours > 0) {
-                    countdownEl.textContent = `${hours}h ${minutes}m`;
-                } else if (minutes > 0) {
-                    countdownEl.textContent = `${minutes}m ${seconds}s`;
-                } else {
-                    countdownEl.textContent = `${seconds}s`;
-                    countdownEl.style.color = 'var(--warning)';
-                }
-
-                const totalMs = 12 * 60 * 60 * 1000;
-                const progress = Math.max(0, 1 - (diff / totalMs));
-                ringEl.style.strokeDashoffset = circumference * (1 - progress);
-
-                requestAnimationFrame(tick);
-            }
-
-            tick();
+    // === Check & Update Button State ===
+    function updateTimeButtonState(btn, doseTimeStr, doseRow) {
+        if (!doseTimeStr) return;
+        
+        const isAvailable = isTimeForDose(doseTimeStr);
+        const hintSpan = doseRow?.querySelector('.time-hint');
+        
+        if (isAvailable) {
+            btn.disabled = false;
+            btn.title = "Mark as taken";
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+            if (hintSpan) hintSpan.textContent = '';
+        } else {
+            btn.disabled = true;
+            btn.title = `Available at ${doseTimeStr}`;
+            btn.style.opacity = '0.6';
+            if (hintSpan) hintSpan.textContent = `Available at ${doseTimeStr}`;
         }
     }
 
-    updateCountdown();
+    // === Check if current time >= dose time ===
+    function isTimeForDose(doseTimeStr) {
+        if (!doseTimeStr) return false;
+        try {
+            const [doseH, doseM] = doseTimeStr.split(':').map(Number);
+            const now = new Date();
+            const doseMinutes = doseH * 60 + doseM;
+            const nowMinutes = now.getHours() * 60 + now.getMinutes();
+            return nowMinutes >= doseMinutes;
+        } catch (e) {
+            console.warn('Invalid time format:', doseTimeStr);
+            return false;
+        }
+    }
+
+    // === Periodic Time Validation (enables buttons when time arrives) ===
+    function startTimeValidation() {
+        // Clear existing interval if any
+        if (timeCheckInterval) clearInterval(timeCheckInterval);
+        
+        // Check every 30 seconds
+        timeCheckInterval = setInterval(() => {
+            document.querySelectorAll('.dose-form').forEach(form => {
+                const btn = form.querySelector('.dose-btn');
+                const doseTime = form.dataset.doseTime;
+                const doseRow = form.closest('.dose-row');
+                
+                // Only check pending doses that are disabled
+                if (btn.disabled && doseTime) {
+                    updateTimeButtonState(btn, doseTime, doseRow);
+                }
+            });
+        }, 30000);
+        
+        // Also check immediately on visibility change (user returns to tab)
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                document.querySelectorAll('.dose-form').forEach(form => {
+                    const btn = form.querySelector('.dose-btn');
+                    const doseTime = form.dataset.doseTime;
+                    const doseRow = form.closest('.dose-row');
+                    if (btn.disabled && doseTime) {
+                        updateTimeButtonState(btn, doseTime, doseRow);
+                    }
+                });
+            }
+        });
+    }
+
+    // === Mark dose as taken in UI ===
+    function markDoseAsTaken(form, medItem, pillsBadge, pillsTaken) {
+        const doseRow = form.closest('.dose-row');
+        
+        // Replace button with "Taken" badge
+        const actionsDiv = doseRow.querySelector('div:last-child');
+        actionsDiv.innerHTML = '';
+        
+        const badge = document.createElement('span');
+        badge.className = 'pills-badge success';
+        badge.style.cssText = 'padding:0.3rem 0.7rem;font-size:0.75rem;display:flex;align-items:center;gap:0.3rem;justify-content:center;';
+        badge.innerHTML = '<i class="bi bi-check-circle-fill"></i> Taken';
+        actionsDiv.appendChild(badge);
+        
+        // Update pills left
+        if (pillsBadge) {
+            const text = pillsBadge.textContent;
+            const match = text.match(/(\d+)/);
+            const current = match ? parseInt(match[1]) : 0;
+            const remaining = Math.max(0, current - pillsTaken);
+            
+            pillsBadge.textContent = `${remaining} pills left`;
+            
+            // Update badge color
+            pillsBadge.classList.remove('success', 'warning', 'danger');
+            if (remaining === 0) pillsBadge.classList.add('danger');
+            else if (remaining < 5) pillsBadge.classList.add('warning');
+            else pillsBadge.classList.add('success');
+        }
+        
+        // Clear any time validation for this dose
+        const btn = form.querySelector('.dose-btn');
+        if (btn) {
+            btn.disabled = true;
+            btn.style.display = 'none';
+        }
+    }
+
+    // === Update "Taken Today" counter ===
+    function updateTakenCount() {
+        // Try API first, fallback to DOM count
+        fetch('/api/taken_count', { headers: { 'Accept': 'application/json' }})
+            .then(res => res.ok ? res.json() : Promise.reject())
+            .then(data => {
+                const el = document.getElementById('takenToday');
+                if (el) el.textContent = data.count || 0;
+            })
+            .catch(() => {
+                // Fallback: count taken badges in DOM
+                const taken = document.querySelectorAll('.pills-badge.success').length;
+                const el = document.getElementById('takenToday');
+                if (el) el.textContent = taken;
+            });
+    }
+
+    // === Countdown Timer ===
+    function startCountdown() {
+        if (countdownInterval) clearInterval(countdownInterval);
+        
+        const countdownEl = document.getElementById('countdown');
+        const ringEl = document.getElementById('progressRing');
+        if (!countdownEl) return;
+        
+        const circumference = 2 * Math.PI * 60;
+        
+        function findNextDose() {
+            let nextTime = null;
+            const now = new Date();
+            
+            document.querySelectorAll('[data-dose-time]').forEach(el => {
+                const timeStr = el.dataset.doseTime;
+                const doseRow = el.closest('.dose-row');
+                const isTaken = doseRow?.querySelector('.pills-badge.success') !== null;
+                
+                if (!timeStr || isTaken) return;
+                
+                const [h, m] = timeStr.split(':').map(Number);
+                let nextDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
+                if (now >= nextDate) nextDate.setDate(nextDate.getDate() + 1);
+                if (!nextTime || nextDate < nextTime) nextTime = nextDate;
+            });
+            
+            return nextTime;
+        }
+        
+        function tick() {
+            const nextTime = findNextDose();
+            
+            if (!nextTime) {
+                countdownEl.textContent = "—";
+                countdownEl.style.color = 'var(--text-muted)';
+                if (ringEl) ringEl.style.strokeDashoffset = circumference;
+                return;
+            }
+            
+            const now = new Date();
+            const diff = nextTime - now;
+            
+            if (diff <= 0) {
+                countdownEl.textContent = "Now!";
+                countdownEl.style.color = 'var(--success)';
+                if (ringEl) ringEl.style.strokeDashoffset = 0;
+                return;
+            }
+            
+            const hrs = Math.floor(diff / 3600000);
+            const mins = Math.floor((diff % 3600000) / 60000);
+            const secs = Math.floor((diff % 60000) / 1000);
+            
+            if (hrs > 0) {
+                countdownEl.textContent = `${hrs}h ${mins}m`;
+                countdownEl.style.color = 'var(--text-primary)';
+            } else if (mins > 0) {
+                countdownEl.textContent = `${mins}m ${secs}s`;
+                countdownEl.style.color = mins < 5 ? 'var(--warning)' : 'var(--text-primary)';
+            } else {
+                countdownEl.textContent = `${secs}s`;
+                countdownEl.style.color = 'var(--danger)';
+            }
+            
+            if (ringEl) {
+                const totalMs = 12 * 60 * 60 * 1000; // 12 hour cycle
+                const progress = Math.max(0, 1 - (diff / totalMs));
+                ringEl.style.strokeDashoffset = circumference * (1 - progress);
+            }
+        }
+        
+        // Initial call + interval
+        tick();
+        countdownInterval = setInterval(tick, 1000);
+    }
+
+    // === Toast Notification ===
+    function showToast(message, type = 'info') {
+        // Remove existing toasts
+        document.querySelectorAll('.med-toast').forEach(t => t.remove());
+        
+        const toast = document.createElement('div');
+        toast.className = 'med-toast';
+        toast.style.cssText = `
+            position: fixed; bottom: 2rem; right: 2rem; z-index: 2000;
+            padding: 0.875rem 1.25rem; border-radius: 12px;
+            background: ${type === 'success' ? 'var(--success)' : type === 'error' ? '#ef4444' : 'var(--accent)'};
+            color: white; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex; align-items: center; gap: 0.5rem;
+            animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+            max-width: 300px;
+        `;
+        toast.innerHTML = `
+            <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        document.body.appendChild(toast);
+        
+        // Auto-remove after animation
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    // Add keyframes if not already in CSS
+    if (!document.getElementById('toast-styles')) {
+        const style = document.createElement('style');
+        style.id = 'toast-styles';
+        style.textContent = `
+            @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+            @keyframes fadeOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
+            @media (max-width: 768px) {
+                .med-toast { right: 1rem; left: 1rem; max-width: none; bottom: 80px; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+</script>
+<script>
+function hideAIBanner() {
+    const banner = document.getElementById("aiBanner");
+    if (banner) {
+        banner.style.display = "none";
+    }
+}
 </script>
 {% endblock %}

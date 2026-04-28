@@ -17,7 +17,24 @@ def statistics():
     user_id = session['user_id']
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT name, dosage_per_day, total_pills, last_taken FROM medications_v2 WHERE user_id = %s", (user_id,))
+    cur.execute("""
+SELECT 
+    m.id AS med_id,
+    m.name,
+    m.total_pills,
+
+    d.id AS dose_id,
+    d.dose_time,
+    d.pills_count,
+    d.status
+
+FROM medications_v2 m
+JOIN medication_doses_v2 d 
+    ON m.id = d.medication_id
+
+WHERE m.user_id = %s
+ORDER BY d.dose_time ASC
+""", (user_id,))
     meds = cur.fetchall()
     stats_data = {
         "total_medications": len(meds),

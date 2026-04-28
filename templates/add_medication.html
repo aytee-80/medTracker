@@ -12,6 +12,116 @@
 </div>
 {% endif %}
 
+<style>
+    /* Time Input Row Styling */
+    .time-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: var(--bg-tertiary);
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        animation: slideIn 0.2s ease-out;
+        position: relative;
+    }
+    
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .time-row input[type="time"] {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .time-row input[type="number"] {
+        width: 90px;
+        flex-shrink: 0;
+    }
+    
+    .time-row .remove-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        border: none;
+        background: var(--bg-secondary);
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+    
+    .time-row .remove-btn:hover {
+        background: #ef4444;
+        color: white;
+    }
+    
+    /* Error styling */
+    .time-row.error {
+        border: 2px solid #ef4444;
+        background: rgba(239, 68, 68, 0.05);
+    }
+    
+    .time-row.error input {
+        border-color: #ef4444 !important;
+    }
+    
+    .error-message {
+        display: none;
+        color: #ef4444;
+        font-size: 0.75rem;
+        margin-top: 0.375rem;
+        padding-left: 0.5rem;
+    }
+    
+    .error-message.show {
+        display: block;
+        animation: shake 0.3s ease;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-4px); }
+        75% { transform: translateX(4px); }
+    }
+    
+    .add-time-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1rem;
+        background: var(--bg-tertiary);
+        border: 1px dashed var(--border);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-top: 0.5rem;
+    }
+    
+    .add-time-btn:hover {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: white;
+    }
+    
+    .add-time-btn i { font-size: 1rem; }
+    
+    /* Mobile responsive */
+    @media (max-width: 576px) {
+        .time-row { flex-wrap: wrap; }
+        .time-row input[type="time"] { flex: 1 1 100%; }
+        .time-row input[type="number"] { width: 80px; }
+    }
+</style>
+
 <div style="max-width: 600px; margin: 0 auto;">
     <!-- Back Button -->
     <a href="/dashboard" class="btn-secondary-custom fade-in" style="margin-bottom: 1.5rem;">
@@ -30,20 +140,15 @@
         </div>
 
         <!-- Form -->
-        <form action="/save_medication" method="post">
+        <form action="/save_medication" method="post" id="medForm" novalidate>
             <!-- Medication Name -->
             <div style="margin-bottom: 1.5rem;">
                 <label class="form-label-custom">
                     <i class="bi bi-capsule" style="margin-right: 0.5rem;"></i>
                     Medication Name
                 </label>
-                <input 
-                    type="text" 
-                    name="name" 
-                    class="form-control-custom" 
-                    placeholder="e.g., Paracetamol, Ibuprofen" 
-                    required
-                >
+                <input type="text" name="name" class="form-control-custom" placeholder="e.g., Paracetamol, Ibuprofen" required>
+                <div class="error-message" id="nameError">Please enter a medication name</div>
             </div>
 
             <!-- Two Column Layout -->
@@ -54,14 +159,8 @@
                         <i class="bi bi-box-seam" style="margin-right: 0.5rem;"></i>
                         Total Pills
                     </label>
-                    <input 
-                        type="number" 
-                        name="total_pills" 
-                        class="form-control-custom" 
-                        placeholder="30" 
-                        min="1"
-                        required
-                    >
+                    <input type="number" name="total_pills" class="form-control-custom" placeholder="30" min="1" required id="totalPills">
+                    <div class="error-message" id="pillsError">Enter a valid number (min: 1)</div>
                 </div>
 
                 <!-- Dosage per Day -->
@@ -70,14 +169,8 @@
                         <i class="bi bi-calendar-check" style="margin-right: 0.5rem;"></i>
                         Daily Dosage
                     </label>
-                    <input 
-                        type="number" 
-                        name="dosage_per_day" 
-                        class="form-control-custom" 
-                        placeholder="2" 
-                        min="1"
-                        required
-                    >
+                    <input type="number" name="dosage_per_day" class="form-control-custom" placeholder="2" min="1" required id="dosagePerDay">
+                    <div class="error-message" id="dosageError">Enter dosage amount (min: 1)</div>
                 </div>
             </div>
 
@@ -87,14 +180,15 @@
                     <i class="bi bi-clock" style="margin-right: 0.5rem;"></i>
                     Time to Take
                 </label>
-                <input 
-                    type="time" 
-                    name="schedule" 
-                    class="form-control-custom" 
-                    required
-                >
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
-                    You&apos;ll receive reminders at this time
+                <div id="timeInputs" style="margin-top: 0.75rem;"></div>
+                <div class="error-message" id="timeError" style="margin-top: 0.5rem;"></div>
+                <button type="button" class="add-time-btn" onclick="addTimeRow()">
+                    <i class="bi bi-plus-circle"></i>
+                    Add Another Time
+                </button>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem;">
+                    <i class="bi bi-info-circle" style="margin-right: 0.25rem;"></i>
+                    Add times in chronological order (earliest to latest). All times must be within the same day.
                 </p>
             </div>
 
@@ -104,13 +198,7 @@
                     <i class="bi bi-card-text" style="margin-right: 0.5rem;"></i>
                     Notes (Optional)
                 </label>
-                <textarea 
-                    name="description" 
-                    class="form-control-custom" 
-                    rows="3" 
-                    placeholder="e.g., Take with food. Avoid alcohol."
-                    style="resize: vertical; min-height: 100px;"
-                ></textarea>
+                <textarea name="description" class="form-control-custom" rows="3" placeholder="e.g., Take with food. Avoid alcohol." style="resize: vertical; min-height: 100px;"></textarea>
             </div>
 
             <!-- Submit Button -->
@@ -134,4 +222,217 @@
         </ul>
     </div>
 </div>
+
+<script>
+    let timeRowCount = 0;
+    
+    // Convert time string "HH:MM" to minutes since midnight for comparison
+    function timeToMinutes(timeStr) {
+        if (!timeStr) return -1;
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        return hours * 60 + minutes;
+    }
+    
+    // Validate all time rows are in chronological order + same day
+    function validateTimeRows() {
+        const rows = document.querySelectorAll(".time-row");
+        const timeError = document.getElementById("timeError");
+        let isValid = true;
+        let prevMinutes = -1;
+        
+        // Clear previous errors
+        document.querySelectorAll(".time-row.error").forEach(row => row.classList.remove("error"));
+        timeError.textContent = "";
+        timeError.classList.remove("show");
+        
+        rows.forEach((row, index) => {
+            const timeInput = row.querySelector('input[type="time"]');
+            const timeValue = timeInput.value;
+            const currentMinutes = timeToMinutes(timeValue);
+            
+            // Check if time is selected
+            if (!timeValue) {
+                row.classList.add("error");
+                isValid = false;
+                return;
+            }
+            
+            // Check chronological order (must be >= previous time)
+            if (prevMinutes >= 0 && currentMinutes <= prevMinutes) {
+                row.classList.add("error");
+                timeError.textContent = `Time must be after the previous dose (${rows[index-1].querySelector('input[type="time"]').value})`;
+                timeError.classList.add("show");
+                isValid = false;
+                return;
+            }
+            
+            // Check same-day constraint (no next-day times)
+            // Since HTML time inputs are 00:00-23:59, we just ensure logical flow
+            // If user tries to add a time < first time, that's caught above
+            
+            prevMinutes = currentMinutes;
+            row.classList.remove("error");
+        });
+        
+        // Check if we have at least one time row
+        if (rows.length === 0) {
+            timeError.textContent = "Please add at least one dose time";
+            timeError.classList.add("show");
+            isValid = false;
+        }
+        
+        return isValid;
+    }
+    
+    // Create a styled time input row
+    function createTimeRow(timeValue = '', pillsValue = '') {
+        timeRowCount++;
+        const rowId = `timeRow_${timeRowCount}`;
+        
+        const div = document.createElement("div");
+        div.className = "time-row fade-in";
+        div.id = rowId;
+        div.innerHTML = `
+            <input type="time" name="dose_times[]" class="form-control-custom" value="${timeValue}" required onchange="validateTimeRows()">
+            <input type="number" name="pills_per_dose[]" class="form-control-custom" placeholder="Pills" min="1" value="${pillsValue}" required>
+            <button type="button" class="remove-btn" onclick="removeTimeRow('${rowId}')" title="Remove">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        `;
+        
+        // Add real-time validation on time change
+        const timeInput = div.querySelector('input[type="time"]');
+        timeInput.addEventListener('change', validateTimeRows);
+        timeInput.addEventListener('blur', validateTimeRows);
+        
+        return div;
+    }
+    
+    // Add a new time row manually (no auto-fill)
+    function addTimeRow(timeValue = '', pillsValue = '') {
+        const container = document.getElementById("timeInputs");
+        const newRow = createTimeRow(timeValue, pillsValue);
+        container.appendChild(newRow);
+        
+        // Focus the new time input for quick entry
+        setTimeout(() => {
+            const newInput = newRow.querySelector('input[type="time"]');
+            if (newInput) newInput.focus();
+        }, 100);
+    }
+    
+    // Remove a time row + revalidate
+    function removeTimeRow(rowId) {
+        const row = document.getElementById(rowId);
+        if (row) {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(-10px)';
+            setTimeout(() => {
+                row.remove();
+                validateTimeRows(); // Re-check order after removal
+            }, 200);
+        }
+    }
+    
+    // Sync row count with dosage field (add/remove rows as needed)
+    function syncTimeRows() {
+        const dosageInput = document.getElementById("dosagePerDay");
+        const container = document.getElementById("timeInputs");
+        const dosageValue = parseInt(dosageInput.value) || 0;
+        const currentRows = container.querySelectorAll(".time-row");
+        
+        // Only add rows if we have fewer than dosage - never auto-remove
+        if (currentRows.length < dosageValue) {
+            for (let i = currentRows.length; i < dosageValue; i++) {
+                addTimeRow('', '1'); // Empty time, user chooses
+            }
+        }
+        // If dosage decreases, we keep extra rows - user manually removes
+    }
+    
+    // Full form validation on submit
+    function validateForm(e) {
+        e.preventDefault();
+        
+        let isValid = true;
+        
+        // Reset errors
+        document.querySelectorAll(".error-message.show").forEach(el => el.classList.remove("show"));
+        document.querySelectorAll(".form-control-custom.error").forEach(el => el.classList.remove("error"));
+        
+        // Validate medication name
+        const nameInput = document.querySelector('input[name="name"]');
+        if (!nameInput.value.trim()) {
+            document.getElementById("nameError").classList.add("show");
+            nameInput.classList.add("error");
+            isValid = false;
+        }
+        
+        // Validate total pills
+        const pillsInput = document.getElementById("totalPills");
+        if (parseInt(pillsInput.value) < 1) {
+            document.getElementById("pillsError").classList.add("show");
+            pillsInput.classList.add("error");
+            isValid = false;
+        }
+        
+        // Validate dosage per day
+        const dosageInput = document.getElementById("dosagePerDay");
+        if (parseInt(dosageInput.value) < 1) {
+            document.getElementById("dosageError").classList.add("show");
+            dosageInput.classList.add("error");
+            isValid = false;
+        }
+        
+        // Validate time rows (chronological + same-day)
+        if (!validateTimeRows()) {
+            isValid = false;
+            // Scroll to time section if error
+            document.getElementById("timeInputs").scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        // Validate pills_per_dose values
+        document.querySelectorAll('input[name="pills_per_dose[]"]').forEach(input => {
+            if (parseInt(input.value) < 1) {
+                input.closest(".time-row").classList.add("error");
+                isValid = false;
+            }
+        });
+        
+        if (isValid) {
+            // All good - submit the form
+            e.target.submit();
+        }
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add 1 default empty row on page load
+        addTimeRow('', '1');
+        
+        // Listen for dosage changes to auto-add rows (but not auto-fill times)
+        document.getElementById("dosagePerDay").addEventListener("change", syncTimeRows);
+        document.getElementById("dosagePerDay").addEventListener("input", syncTimeRows);
+        
+        // Attach form validation
+        document.getElementById("medForm").addEventListener("submit", validateForm);
+        
+        // Real-time validation on pills/dosage inputs
+        document.getElementById("totalPills").addEventListener("blur", function() {
+            if (parseInt(this.value) < 1) {
+                document.getElementById("pillsError").classList.add("show");
+            } else {
+                document.getElementById("pillsError").classList.remove("show");
+            }
+        });
+        
+        document.getElementById("dosagePerDay").addEventListener("blur", function() {
+            if (parseInt(this.value) < 1) {
+                document.getElementById("dosageError").classList.add("show");
+            } else {
+                document.getElementById("dosageError").classList.remove("show");
+            }
+        });
+    });
+</script>
 {% endblock %}
