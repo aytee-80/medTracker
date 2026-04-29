@@ -1,11 +1,9 @@
-from flask import Blueprint, request, redirect, url_for, session, render_template, flash
-import bcrypt
-from run.db.connection import get_db_connection
-from run.services.email_service import send_welcome_email
+from flask import Blueprint, request, redirect, url_for, session, render_template, flash, jsonify
 import requests
 import config
 
 auth = Blueprint('auth', __name__)
+
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
@@ -36,6 +34,7 @@ def register():
             return redirect(url_for('auth.register'))
 
     return render_template('register.html')
+
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -71,6 +70,7 @@ def login():
     
     return render_template('login.html')
 
+
 @auth.route('/logout')
 def logout():
     session.pop('user_id', None)
@@ -96,54 +96,84 @@ def forgot_password():
             }
         )
 
+        # Supabase returns 204 No Content on success
         if res.status_code in [200, 204]:
-            flash("Password reset link sent to your email", "success")
+            flash("If an account exists with that email, a password reset link has been sent.", "success")
         else:
-            flash("Error sending reset email", "danger")
+            try:
+                error_data = res.json()
+                flash(f"Error: {error_data.get('error_description', 'Failed to send reset email')}", "danger")
+            except:
+                flash("Error sending reset email", "danger")
 
         return redirect(url_for('main.home'))
 
     return render_template('forgot_password.html')
 
+
 @auth.route('/update-password', methods=['POST'])
 def update_password():
-    data = request.json
-    new_password = data.get("password")
-    access_token = data.get("access_token")
+    """
+    Handle password update via Supabase Auth API.
+    Expects JSON: { "password": "...", "access_token": "...", "refresh_token": "..." }
+    """
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Request body must be JSON"}), 400
 
-    if not access_token:
-        return {"error": "Missing token"}, 400
+        new_password = data.get("password")
+        access_token = data.get("access_token")
 
-    # STEP 1: create authenticated request context
-    headers = {
-        "apikey": config.SUPABASE_KEY,
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json"
-    }
-    requests.post(
-    f"{config.SUPABASE_URL}/auth/v1/token?grant_type=refresh_token",
-    json={
-        "refresh_token": request.json.get("refresh_token")
-    },
-    headers={
-        "apikey": config.SUPABASE_KEY
-    }
-)
-    # STEP 2: update password (IMPORTANT: must include user scope token)
-    res = requests.put(
-        f"{config.SUPABASE_URL}/auth/v1/user",
-        json={"password": new_password},
-        headers=headers
-    )
+        # Validation
+        if not access_token:
+            return jsonify({"error": "Missing access_token"}), 400
+        if not new_password or len(new_password) < 8:
+            return jsonify({"error": "Password must be at least 8 characters"}), 400
 
-    if res.status_code in [200, 204]:
-        return {"message": "Password updated successfully"}
+        # Build headers with recovery access_token
+        headers = {
+            "apikey": config.SUPABASE_KEY,
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json"
+        }
 
-    return {
-        "error": "Failed to update password",
-        "details": res.json()
-    }, 400
+        # Call Supabase Auth API to update password
+        # NOTE: Recovery tokens have permission to update user password directly
+        res = requests.put(
+            f"{config.SUPABASE_URL}/auth/v1/user",
+            json={"password": new_password},
+            headers=headers,
+            timeout=30
+        )
+
+        # Log response for debugging (use proper logging in production)
+        print(f"[Supabase] Status: {res.status_code}")
+        print(f"[Supabase] Response: {res.text}")
+
+        if res.status_code in [200, 204]:
+            return jsonify({"message": "Password updated successfully"}), 200
+
+        # Parse and return Supabase error
+        try:
+            error_details = res.json()
+        except:
+            error_details = {"raw_response": res.text}
+
+        return jsonify({
+            "error": "Failed to update password",
+            "details": error_details
+        }), res.status_code
+
+    except Exception as e:
+        print(f"[ERROR] update_password exception: {str(e)}")
+        return jsonify({"error": "Internal server error", "details": str(e)}), 500
+
 
 @auth.route('/reset-password', methods=['GET'])
 def reset_password():
+    """
+    Render the password reset page.
+    The access_token is extracted from the URL hash on the client side.
+    """
     return render_template('reset_password.html')
