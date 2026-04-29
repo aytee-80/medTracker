@@ -64,6 +64,29 @@
             min-height: 100vh;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
+        .alert-success-custom {
+    background: var(--success-light);
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.alert-warning-custom {
+    background: var(--warning-light);
+    color: #92400e;
+    border: 1px solid #fcd34d;
+}
+
+.alert-danger-custom {
+    background: var(--danger-light);
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.alert-info-custom {
+    background: #e0f2fe;
+    color: #075985;
+    border: 1px solid #bae6fd;
+}
 
         /* Navbar */
         .navbar-custom {
@@ -75,6 +98,48 @@
             z-index: 1000;
             backdrop-filter: blur(12px);
         }
+
+        /* Hide browser's native password reveal button */
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-clear-button,
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/* Ensure our custom toggle button sits above browser UI */
+.password-toggle-btn {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.25rem;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.password-toggle-btn:hover {
+    color: var(--text-primary);
+}
+
+/* Password input wrapper */
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-input-wrapper input {
+    padding-right: 2.5rem !important;
+}
 
         .navbar-brand-custom {
             font-weight: 700;
@@ -449,16 +514,23 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert-custom alert-info-custom fade-in" style="margin-bottom: 1.5rem;">
-                        <i class="bi bi-info-circle"></i>
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert-custom fade-in {{ 'alert-danger-custom' if category == 'danger' else 'alert-success-custom' if category == 'success' else 'alert-warning-custom' if category == 'warning' else 'alert-info-custom' }}" 
+                 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;"
+                 role="alert">
+                <i class="bi {{ 'bi-exclamation-triangle' if category == 'danger' else 'bi-check-circle' if category == 'success' else 'bi-exclamation-circle' if category == 'warning' else 'bi-info-circle' }}"></i>
+                <span>{{ message }}</span>
+                <button type="button" onclick="this.parentElement.remove()" 
+                        style="margin-left: auto; background: none; border: none; color: inherit; cursor: pointer; padding: 0.25rem;"
+                        aria-label="Dismiss">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
         
         {% block content %}{% endblock %}
     </main>
@@ -501,5 +573,31 @@
             }
         });
     </script>
+    <script>
+    // Global password visibility toggle - define ONCE
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        
+        // Update all icons with matching pattern
+        document.querySelectorAll(`[id^="toggle${inputId}-icon"]`).forEach(icon => {
+            if (isPassword) {
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        });
+        
+        input.focus();
+    }
+
+    // Existing dark mode and nav functions...
+    // (keep your toggleDarkMode and toggleNav functions here)
+</script>
 </body>
 </html>
