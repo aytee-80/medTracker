@@ -4,7 +4,6 @@
 {% block content %}
 <div style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
     <div class="card-custom fade-in" style="width: 100%; max-width: 420px; padding: 2.5rem;">
-        <!-- Logo -->
         <div style="text-align: center; margin-bottom: 2rem;">
             <div style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--success), #34d399); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
                 <i class="bi bi-person-plus" style="font-size: 2rem; color: white;"></i>
@@ -13,8 +12,7 @@
             <p style="color: var(--text-muted); font-size: 0.9375rem;">Start tracking your medications today</p>
         </div>
 
-        <!-- Form -->
-        <form action="/register" method="POST">
+        <form action="/register" method="POST" onsubmit="return validateRegisterForm()">
             <div style="margin-bottom: 1.25rem;">
                 <label class="form-label-custom">Email address</label>
                 <input 
@@ -27,21 +25,50 @@
                 >
             </div>
 
-            <div style="margin-bottom: 1.5rem;">
-                <label class="form-label-custom">Password</label>
-                <input 
-                    type="password" 
-                    name="password" 
-                    class="form-control-custom" 
-                    placeholder="Create a strong password" 
-                    required
-                    autocomplete="new-password"
-                    minlength="8"
-                >
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
-                    Must be at least 8 characters
-                </p>
-            </div>
+            <!-- Password field -->
+<div style="margin-bottom: 1.25rem;">
+    <label class="form-label-custom">Password</label>
+    <div class="password-input-wrapper">
+        <input 
+            type="password" 
+            name="password" 
+            id="registerPassword"
+            class="form-control-custom" 
+            placeholder="Create a strong password" 
+            required
+            autocomplete="new-password"
+            minlength="8"
+        >
+        <button type="button" class="password-toggle-btn" onclick="togglePassword('registerPassword')" aria-label="Toggle password visibility">
+            <i class="bi bi-eye" id="toggleRegister-icon"></i>
+        </button>
+    </div>
+    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
+        Must be at least 8 characters
+    </p>
+</div>
+
+<!-- Confirm Password field -->
+<div style="margin-bottom: 1.5rem;">
+    <label class="form-label-custom">Confirm Password</label>
+    <div class="password-input-wrapper">
+        <input 
+            type="password" 
+            name="confirm_password" 
+            id="registerConfirmPassword"
+            class="form-control-custom" 
+            placeholder="Confirm your password" 
+            required
+            autocomplete="new-password"
+            minlength="8"
+        >
+        <button type="button" class="password-toggle-btn" onclick="togglePassword('registerConfirmPassword')" aria-label="Toggle password visibility">
+            <i class="bi bi-eye" id="toggleRegisterConfirm-icon"></i>
+        </button>
+    </div>
+</div>
+
+          
 
             <button type="submit" class="btn-primary-custom" style="width: 100%; justify-content: center; background: var(--success);">
                 <i class="bi bi-check-circle"></i>
@@ -49,14 +76,12 @@
             </button>
         </form>
 
-        <!-- Divider -->
         <div style="display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0;">
             <div style="flex: 1; height: 1px; background: var(--border);"></div>
             <span style="color: var(--text-muted); font-size: 0.8125rem;">or</span>
             <div style="flex: 1; height: 1px; background: var(--border);"></div>
         </div>
 
-        <!-- Login Link -->
         <p style="text-align: center; color: var(--text-secondary); font-size: 0.9375rem; margin: 0;">
             Already have an account? 
             <a href="/" style="color: var(--accent); font-weight: 600; text-decoration: none;">
@@ -65,4 +90,24 @@
         </p>
     </div>
 </div>
+
+<script>
+    // Reuse the same toggle function (define once in layout.html or include here)
+    
+
+    function validateRegisterForm() {
+        const password = document.querySelector('input[name="password"]').value;
+        const confirm = document.querySelector('input[name="confirm_password"]').value;
+        
+        if (password !== confirm) {
+            alert("Passwords do not match. Please try again.");
+            return false;
+        }
+        if (password.length < 8) {
+            alert("Password must be at least 8 characters long.");
+            return false;
+        }
+        return true;
+    }
+</script>
 {% endblock %}
