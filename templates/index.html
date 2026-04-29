@@ -26,22 +26,22 @@
             </div>
 
             <div style="margin-bottom: 1.5rem;">
-    <label class="form-label-custom">Password</label>
-    <div class="password-input-wrapper">
-        <input 
-            type="password" 
-            name="password" 
-            id="loginPassword"
-            class="form-control-custom" 
-            placeholder="Enter your password" 
-            required
-            autocomplete="current-password"
-        >
-        <button type="button" class="password-toggle-btn" onclick="togglePassword('loginPassword')" aria-label="Toggle password visibility">
-            <i class="bi bi-eye" id="toggleLogin-icon"></i>
-        </button>
-    </div>
-</div>
+                <label class="form-label-custom">Password</label>
+                <div class="password-input-wrapper">
+                    <input 
+                        type="password" 
+                        name="password" 
+                        id="loginPassword"
+                        class="form-control-custom" 
+                        placeholder="Enter your password" 
+                        required
+                        autocomplete="current-password"
+                    >
+                    <button type="button" class="password-toggle-btn" onclick="togglePassword('loginPassword')" aria-label="Toggle password visibility">
+                        <i class="bi bi-eye" id="toggleLogin-icon"></i>
+                    </button>
+                </div>
+            </div>
 
             <button type="submit" class="btn-primary-custom" style="width: 100%; justify-content: center;">
                 <i class="bi bi-box-arrow-in-right"></i>
@@ -71,7 +71,7 @@
 </div>
 
 <script>
-    // Only redirect to reset-password if this is a recovery flow (not signup confirmation)
+    // Only redirect to reset-password if this is a recovery flow (not signup)
     function parseHashParams(hash) {
         const params = {};
         if (!hash || hash === '#') return params;
@@ -87,11 +87,9 @@
 
     const hashParams = parseHashParams(window.location.hash);
     
-    // Only redirect if this is a password recovery token (type=recovery)
+    // Only redirect if this is a password recovery token
     if (hashParams.access_token && hashParams.type === 'recovery') {
         window.location.href = "/reset-password" + window.location.hash;
     }
-    // If type=signup or type=magiclink, let the user stay on login page
-    // Supabase will have already sent the confirmation email
 </script>
 {% endblock %}
