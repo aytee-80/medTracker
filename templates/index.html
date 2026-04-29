@@ -4,7 +4,6 @@
 {% block content %}
 <div style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
     <div class="card-custom fade-in" style="width: 100%; max-width: 420px; padding: 2.5rem;">
-        <!-- Logo -->
         <div style="text-align: center; margin-bottom: 2rem;">
             <div style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--accent), #06b6d4); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
                 <i class="bi bi-capsule" style="font-size: 2rem; color: white;"></i>
@@ -13,7 +12,6 @@
             <p style="color: var(--text-muted); font-size: 0.9375rem;">Sign in to your MedTracker account</p>
         </div>
 
-        <!-- Form -->
         <form action="/login" method="POST">
             <div style="margin-bottom: 1.25rem;">
                 <label class="form-label-custom">Email address</label>
@@ -28,16 +26,22 @@
             </div>
 
             <div style="margin-bottom: 1.5rem;">
-                <label class="form-label-custom">Password</label>
-                <input 
-                    type="password" 
-                    name="password" 
-                    class="form-control-custom" 
-                    placeholder="Enter your password" 
-                    required
-                    autocomplete="current-password"
-                >
-            </div>
+    <label class="form-label-custom">Password</label>
+    <div class="password-input-wrapper">
+        <input 
+            type="password" 
+            name="password" 
+            id="loginPassword"
+            class="form-control-custom" 
+            placeholder="Enter your password" 
+            required
+            autocomplete="current-password"
+        >
+        <button type="button" class="password-toggle-btn" onclick="togglePassword('loginPassword')" aria-label="Toggle password visibility">
+            <i class="bi bi-eye" id="toggleLogin-icon"></i>
+        </button>
+    </div>
+</div>
 
             <button type="submit" class="btn-primary-custom" style="width: 100%; justify-content: center;">
                 <i class="bi bi-box-arrow-in-right"></i>
@@ -45,31 +49,49 @@
             </button>
         </form>
 
-        <!-- Divider -->
         <div style="display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0;">
             <div style="flex: 1; height: 1px; background: var(--border);"></div>
             <span style="color: var(--text-muted); font-size: 0.8125rem;">or</span>
             <div style="flex: 1; height: 1px; background: var(--border);"></div>
         </div>
 
-        <!-- Register Link -->
         <p style="text-align: center; color: var(--text-secondary); font-size: 0.9375rem; margin: 0;">
-            Don&apos;t have an account? 
+            Don't have an account? 
             <a href="/register" style="color: var(--accent); font-weight: 600; text-decoration: none;">
                 Create one
             </a>
         </p>
 
         <p style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; margin: 0;">
-        <a href="/forgot-password" style="color: var(--accent); font-weight: 600; text-decoration: none;">
-            Forgot password?
-        </a>
-</p>
+            <a href="/forgot-password" style="color: var(--accent); font-weight: 600; text-decoration: none;">
+                Forgot password?
+            </a>
+        </p>
     </div>
 </div>
+
 <script>
-    if (window.location.hash.includes("access_token")) {
+    // Only redirect to reset-password if this is a recovery flow (not signup confirmation)
+    function parseHashParams(hash) {
+        const params = {};
+        if (!hash || hash === '#') return params;
+        
+        hash.replace('#', '').split('&').forEach(pair => {
+            const [key, ...valueParts] = pair.split('=');
+            if (key && valueParts.length > 0) {
+                params[key] = decodeURIComponent(valueParts.join('='));
+            }
+        });
+        return params;
+    }
+
+    const hashParams = parseHashParams(window.location.hash);
+    
+    // Only redirect if this is a password recovery token (type=recovery)
+    if (hashParams.access_token && hashParams.type === 'recovery') {
         window.location.href = "/reset-password" + window.location.hash;
     }
+    // If type=signup or type=magiclink, let the user stay on login page
+    // Supabase will have already sent the confirmation email
 </script>
 {% endblock %}
