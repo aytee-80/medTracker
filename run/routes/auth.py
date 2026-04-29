@@ -12,7 +12,6 @@ def register():
         password = request.form['password']
         confirm_password = request.form.get('confirm_password', '')
 
-        # Client-side validation missed? Catch it here
         if password != confirm_password:
             flash("Passwords do not match", "danger")
             return redirect(url_for('auth.register'))
@@ -39,10 +38,8 @@ def register():
             flash("Check your email to confirm your account", "success")
             return redirect(url_for('main.home'))
         else:
-            # Extract meaningful error message from Supabase
             error_msg = data.get('msg') or data.get('error_description') or data.get('error', 'Registration failed')
             
-            # Handle specific Supabase errors
             if 'password' in error_msg.lower() and 'similar' in error_msg.lower():
                 error_msg = "New password cannot be similar to your previous password. Please choose a different password."
             elif 'weak password' in error_msg.lower():
@@ -85,7 +82,6 @@ def login():
         else:
             error_msg = data.get('msg') or data.get('error_description') or 'Invalid credentials'
             
-            # Improve error messaging
             if 'invalid login credentials' in error_msg.lower():
                 error_msg = "Invalid email or password. Please try again."
             elif 'email not confirmed' in error_msg.lower():
@@ -141,21 +137,22 @@ def forgot_password():
 def update_password():
     """
     Handle password update via Supabase Auth API.
-    Returns JSON with success message or detailed error for frontend display.
+    Uses regular form POST with flash messages (not AJAX).
+    Expects form data: password, access_token, refresh_token
     """
     try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "Request body must be JSON", "user_message": "Invalid request format"}), 400
-
-        new_password = data.get("password")
-        access_token = data.get("access_token")
+        # Get form data (not JSON)
+        new_password = request.form.get("password")
+        access_token = request.form.get("access_token")
+        refresh_token = request.form.get("refresh_token")  # Not used by Supabase but kept for completeness
 
         if not access_token:
-            return jsonify({"error": "Missing access_token", "user_message": "Session expired. Please request a new reset link."}), 400
+            flash("Session expired. Please request a new reset link.", "danger")
+            return redirect(url_for('auth.forgot_password'))
         
         if not new_password or len(new_password) < 8:
-            return jsonify({"error": "Password too short", "user_message": "Password must be at least 8 characters"}), 400
+            flash("Password must be at least 8 characters", "danger")
+            return redirect(url_for('auth.reset_password'))
 
         headers = {
             "apikey": config.SUPABASE_KEY,
@@ -171,51 +168,47 @@ def update_password():
         )
 
         if res.status_code in [200, 204]:
-            return jsonify({"message": "Password updated successfully"}), 200
+            flash("Password updated successfully. Please log in with your new password.", "success")
+            return redirect(url_for('main.home'))
 
-        # Parse Supabase error and create user-friendly message
+        # Parse Supabase error
         try:
             error_details = res.json()
         except:
             error_details = {"raw_response": res.text}
 
-        # Extract and format error message for user
         raw_error = error_details.get('msg') or error_details.get('error_description') or error_details.get('error') or str(error_details)
         
-        user_message = "Failed to update password. Please try again."
-        
-        # Handle specific Supabase password policy errors
+        # Map Supabase errors to user-friendly flash messages
         if 'password' in raw_error.lower():
             if 'similar' in raw_error.lower():
-                user_message = "New password cannot be similar to your previous password. Please choose a more different password."
+                flash("New password cannot be similar to your previous password. Please choose a more different password.", "danger")
             elif 'weak' in raw_error.lower() or 'strength' in raw_error.lower():
-                user_message = "Password does not meet security requirements. Use at least 8 characters with letters, numbers, and symbols."
+                flash("Password does not meet security requirements. Use at least 8 characters with letters, numbers, and symbols.", "danger")
             elif 'previously used' in raw_error.lower():
-                user_message = "You cannot reuse a previous password. Please choose a new password."
+                flash("You cannot reuse a previous password. Please choose a new password.", "danger")
             elif 'pwned' in raw_error.lower() or 'common' in raw_error.lower():
-                user_message = "This password is too common or compromised. Please choose a stronger password."
+                flash("This password is too common or compromised. Please choose a stronger password.", "danger")
+            elif 'not enough different' in raw_error.lower():
+                flash("New password must be sufficiently different from your previous password.", "danger")
+            else:
+                flash(f"Password error: {raw_error}", "danger")
+        elif 'token' in raw_error.lower() or 'expired' in raw_error.lower():
+            flash("Reset link has expired. Please request a new password reset.", "danger")
+        else:
+            flash(f"Failed to update password: {raw_error}", "danger")
 
-        return jsonify({
-            "error": "Failed to update password",
-            "details": error_details,
-            "user_message": user_message
-        }), res.status_code
+        return redirect(url_for('auth.reset_password'))
 
     except requests.exceptions.Timeout:
-        return jsonify({
-            "error": "Request timeout",
-            "user_message": "The request took too long. Please check your connection and try again."
-        }), 504
+        flash("The request took too long. Please check your connection and try again.", "danger")
+        return redirect(url_for('auth.reset_password'))
     except requests.exceptions.ConnectionError:
-        return jsonify({
-            "error": "Connection error",
-            "user_message": "Unable to connect to the server. Please check your internet connection."
-        }), 503
+        flash("Unable to connect to the server. Please check your internet connection.", "danger")
+        return redirect(url_for('auth.reset_password'))
     except Exception as e:
-        return jsonify({
-            "error": "Internal server error",
-            "user_message": "An unexpected error occurred. Please try again later."
-        }), 500
+        flash("An unexpected error occurred. Please try again later.", "danger")
+        return redirect(url_for('auth.reset_password'))
 
 
 @auth.route('/reset-password', methods=['GET'])
