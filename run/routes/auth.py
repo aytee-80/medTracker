@@ -77,3 +77,60 @@ def logout():
     session.pop('access_token', None)
     flash("You've been logged out. See you soon!", "info")
     return redirect(url_for('main.home'))
+
+
+@auth.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+
+        res = requests.post(
+            f"{config.SUPABASE_URL}/auth/v1/recover",
+            json={
+                "email": email
+            },
+            headers={
+                "apikey": config.SUPABASE_KEY,
+                "Content-Type": "application/json"
+            }
+        )
+
+        if res.status_code in [200, 204]:
+            flash("Password reset link sent to your email", "success")
+        else:
+            flash("Error sending reset email", "danger")
+
+        return redirect(url_for('main.home'))
+
+    return render_template('forgot_password.html')
+
+@auth.route('/reset-password', methods=['GET', 'POST'])
+def reset_password():
+    if request.method == 'POST':
+        new_password = request.form['password']
+
+        access_token = request.args.get('access_token')
+
+        if not access_token:
+            flash("Invalid or expired reset link", "danger")
+            return redirect(url_for('main.home'))
+
+        res = requests.put(
+            f"{config.SUPABASE_URL}/auth/v1/user",
+            json={
+                "password": new_password
+            },
+            headers={
+                "apikey": config.SUPABASE_KEY,
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type": "application/json"
+            }
+        )
+
+        if res.status_code == 200:
+            flash("Password updated successfully. Please log in.", "success")
+            return redirect(url_for('main.home'))
+        else:
+            flash("Failed to update password", "danger")
+
+    return render_template('reset_password.html')
