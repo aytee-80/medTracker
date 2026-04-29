@@ -105,34 +105,26 @@ def forgot_password():
 
     return render_template('forgot_password.html')
 
-@auth.route('/reset-password', methods=['GET', 'POST'])
-def reset_password():
-    if request.method == 'POST':
-        new_password = request.form['password']
+@auth.route('/update-password', methods=['POST'])
+def update_password():
+    data = request.json
+    new_password = data.get("password")
+    access_token = data.get("access_token")
 
-        access_token = request.args.get('access_token')
+    if not access_token:
+        return {"error": "Missing token"}, 400
 
-        if not access_token:
-            access_token = request.args.get('token')
-            flash("Invalid or expired reset link", "danger")
-            return redirect(url_for('main.home'))
+    res = requests.put(
+        f"{config.SUPABASE_URL}/auth/v1/user",
+        json={"password": new_password},
+        headers={
+            "apikey": config.SUPABASE_KEY,
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json"
+        }
+    )
 
-        res = requests.put(
-            f"{config.SUPABASE_URL}/auth/v1/user",
-            json={
-                "password": new_password
-            },
-            headers={
-                "apikey": config.SUPABASE_KEY,
-                "Authorization": f"Bearer {access_token}",
-                "Content-Type": "application/json"
-            }
-        )
+    if res.status_code == 200:
+        return {"message": "Password updated successfully"}
 
-        if res.status_code == 200:
-            flash("Password updated successfully. Please log in.", "success")
-            return redirect(url_for('main.home'))
-        else:
-            flash("Failed to update password", "danger")
-
-    return render_template('reset_password.html')
+    return {"error": "Failed to update password"}, 400
