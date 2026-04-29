@@ -87,7 +87,8 @@ def forgot_password():
         res = requests.post(
             f"{config.SUPABASE_URL}/auth/v1/recover",
             json={
-                "email": email
+                "email": email,
+                "redirectTo": "https://medtracker.up.railway.app/reset-password"
             },
             headers={
                 "apikey": config.SUPABASE_KEY,
