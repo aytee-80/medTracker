@@ -124,7 +124,9 @@ def update_password():
         }
     )
 
-    if res.status_code == 200:
-        return {"message": "Password updated successfully"}
+    return {"message": "ok"} if res.status_code == 200 else {"error": "fail"}, 400
 
-    return {"error": "Failed to update password"}, 400
+
+@auth.route('/reset-password', methods=['GET'])
+def reset_password():
+    return render_template('reset_password.html')
