@@ -114,18 +114,35 @@ def update_password():
     if not access_token:
         return {"error": "Missing token"}, 400
 
+    # STEP 1: create authenticated request context
+    headers = {
+        "apikey": config.SUPABASE_KEY,
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+    requests.post(
+    f"{config.SUPABASE_URL}/auth/v1/token?grant_type=refresh_token",
+    json={
+        "refresh_token": request.json.get("refresh_token")
+    },
+    headers={
+        "apikey": config.SUPABASE_KEY
+    }
+)
+    # STEP 2: update password (IMPORTANT: must include user scope token)
     res = requests.put(
         f"{config.SUPABASE_URL}/auth/v1/user",
         json={"password": new_password},
-        headers={
-            "apikey": config.SUPABASE_KEY,
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json"
-        }
+        headers=headers
     )
 
-    return {"message": "ok"} if res.status_code == 200 else {"error": "fail"}, 400
+    if res.status_code in [200, 204]:
+        return {"message": "Password updated successfully"}
 
+    return {
+        "error": "Failed to update password",
+        "details": res.json()
+    }, 400
 
 @auth.route('/reset-password', methods=['GET'])
 def reset_password():
