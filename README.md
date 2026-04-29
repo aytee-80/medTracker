@@ -2,6 +2,19 @@
 
 A web application that helps users track their medication schedules and receive reminders to take their doses on time. Users can log in, manage medications, and receive intelligent health assistance powered by AI.
 
+## Live Application
+
+https://medtracker.up.railway.app/
+
+Deployed using Railway.
+
+When Railway not working cause I'm no free plan 
+I Also deployed on Render Also
+
+https://medication-app2.onrender.com
+
+> Note: The free Render may take a few minutes to load on first visit.
+
 ## Overview
 
 Users can:
@@ -59,10 +72,3 @@ This application integrates AI-powered health assistance using Groq API:
 - AI-powered health assistant
 - Responsive UI with dark mode support
 
-## Live Application
-
-https://medtracker.up.railway.app/
-
-Deployed using Railway.
-
-> Note: The free tier may take a few seconds to load on first visit.
