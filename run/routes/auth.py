@@ -113,6 +113,7 @@ def reset_password():
         access_token = request.args.get('access_token')
 
         if not access_token:
+            access_token = request.args.get('token')
             flash("Invalid or expired reset link", "danger")
             return redirect(url_for('main.home'))
 
