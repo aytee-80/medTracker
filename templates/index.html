@@ -67,4 +67,9 @@
 </p>
     </div>
 </div>
+<script>
+    if (window.location.hash.includes("access_token")) {
+        window.location.href = "/reset-password" + window.location.hash;
+    }
+</script>
 {% endblock %}
