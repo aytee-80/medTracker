@@ -1,128 +1,50 @@
 {% extends "layout.html" %}
 {% block title %}Print Guide - MedTracker{% endblock %}
 
-{% block title %}Print Guide - MedTracker{% endblock %}
-
 {% block content %}
 <style>
     @media print {
-        body {
-            background: white !important;
-            color: black !important;
-        }
-        
-        .navbar-custom, 
-        .no-print,
-        .btn-secondary-custom,
-        .btn-primary-custom {
-            display: none !important;
-        }
-        
-        .card-custom {
-            box-shadow: none !important;
-            border: 1px solid #ddd !important;
-            break-inside: avoid;
-        }
-        
-        .print-header {
-            text-align: center;
-            padding: 2rem 0;
-            border-bottom: 2px solid #333;
-            margin-bottom: 2rem;
-        }
-        
-        .main-content {
-            max-width: 100% !important;
-            padding: 0 !important;
-        }
+        body { background: white !important; color: black !important; }
+        .navbar-custom, .no-print, .btn-secondary-custom, .btn-primary-custom { display: none !important; }
+        .card-custom { box-shadow: none !important; border: 1px solid #ddd !important; break-inside: avoid; }
+        .print-header { text-align: center; padding: 2rem 0; border-bottom: 2px solid #333; margin-bottom: 2rem; }
+        .main-content { max-width: 100% !important; padding: 0 !important; }
     }
-    
-    @media screen {
-        .print-only {
-            display: none;
-        }
-    }
-    @media print {
-        body {
-            background: white !important;
-            color: black !important;
-        }
-        
-        .navbar-custom, 
-        .no-print,
-        .btn-secondary-custom,
-        .btn-primary-custom {
-            display: none !important;
-        }
-        
-        .card-custom {
-            box-shadow: none !important;
-            border: 1px solid #ddd !important;
-            break-inside: avoid;
-        }
-        
-        .print-header {
-            text-align: center;
-            padding: 2rem 0;
-            border-bottom: 2px solid #333;
-            margin-bottom: 2rem;
-        }
-        
-        .main-content {
-            max-width: 100% !important;
-            padding: 0 !important;
-        }
-    }
-    
-    @media screen {
-        .print-only {
-            display: none;
-        }
-    }
+    @media screen { .print-only { display: none; } }
 </style>
 
 <div style="max-width: 800px; margin: 0 auto;">
-    <!-- Back Button (hidden in print) -->
     <div class="no-print">
         <a href="/dashboard" class="btn-secondary-custom fade-in" style="margin-bottom: 1.5rem;">
-            <i class="bi bi-arrow-left"></i>
-            Back to Dashboard
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
         </a>
     </div>
 
-    <!-- Print Header (visible only in print) -->
     <div class="print-only print-header">
         <h1 style="font-size: 1.5rem; margin-bottom: 0.5rem;">My Medication Guide</h1>
         <p style="color: #666;">Generated from MedTracker</p>
     </div>
 
-    <!-- Page Header -->
     <div class="page-header fade-in no-print">
         <h1 class="page-title">Printable Medication Guide</h1>
         <p class="page-subtitle">Print this guide to keep a physical copy of your medications</p>
     </div>
 
-    <!-- Print Button -->
     <div class="no-print fade-in fade-delay-1" style="margin-bottom: 2rem;">
         <button onclick="window.print()" class="btn-primary-custom">
-            <i class="bi bi-printer"></i>
-            Print This Guide
+            <i class="bi bi-printer"></i> Print This Guide
         </button>
     </div>
 
-    <!-- Medication List -->
     <div style="display: flex; flex-direction: column; gap: 1.25rem;">
         {% for med in medications %}
         <div class="card-custom fade-in" style="padding: 1.5rem;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <div style="width: 48px; height: 48px; background: var(--bg-tertiary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                        <i class="bi bi-capsule" style="font-size: 1.25rem; color: var(--accent);"></i>
-                    </div>
-                    <div>
-                        <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">{{ med.name }}</h2>
-                        <span class="badge-custom badge-success">{{ med.schedule_str }}</span>
-                    </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                <div style="width: 48px; height: 48px; background: var(--bg-tertiary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-capsule" style="font-size: 1.25rem; color: var(--accent);"></i>
+                </div>
+                <div>
+                    <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">{{ med.name }}</h2>
                 </div>
             </div>
 
@@ -136,8 +58,8 @@
                     <p style="font-weight: 600; margin: 0;">{{ med.total_pills }}</p>
                 </div>
                 <div style="padding: 0.75rem; background: var(--bg-tertiary); border-radius: 8px;">
-                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">Last Taken</p>
-                    <p style="font-weight: 600; margin: 0;">{{ med.last_taken or 'Never' }}</p>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">Added</p>
+                    <p style="font-weight: 600; margin: 0;">{{ med.created_at_str }}</p>
                 </div>
             </div>
 
@@ -152,88 +74,7 @@
             </div>
             {% endif %}
         </div>
-        {% empty %}
-        <div class="card-custom" style="padding: 3rem; text-align: center;">
-            <div style="width: 64px; height: 64px; background: var(--bg-tertiary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                <i class="bi bi-capsule" style="font-size: 1.5rem; color: var(--text-muted);"></i>
-            </div>
-            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">No medications to print</h3>
-            <p style="color: var(--text-muted);">Add medications from your dashboard first</p>
-        </div>
-        {% endfor %}
-    </div>
-<div style="max-width: 800px; margin: 0 auto;">
-    <!-- Back Button (hidden in print) -->
-    <div class="no-print">
-        <a href="/dashboard" class="btn-secondary-custom fade-in" style="margin-bottom: 1.5rem;">
-            <i class="bi bi-arrow-left"></i>
-            Back to Dashboard
-        </a>
-    </div>
-
-    <!-- Print Header (visible only in print) -->
-    <div class="print-only print-header">
-        <h1 style="font-size: 1.5rem; margin-bottom: 0.5rem;">My Medication Guide</h1>
-        <p style="color: #666;">Generated from MedTracker</p>
-    </div>
-
-    <!-- Page Header -->
-    <div class="page-header fade-in no-print">
-        <h1 class="page-title">Printable Medication Guide</h1>
-        <p class="page-subtitle">Print this guide to keep a physical copy of your medications</p>
-    </div>
-
-    <!-- Print Button -->
-    <div class="no-print fade-in fade-delay-1" style="margin-bottom: 2rem;">
-        <button onclick="window.print()" class="btn-primary-custom">
-            <i class="bi bi-printer"></i>
-            Print This Guide
-        </button>
-    </div>
-
-    <!-- Medication List -->
-    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-        {% for med in medications %}
-        <div class="card-custom fade-in" style="padding: 1.5rem;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <div style="width: 48px; height: 48px; background: var(--bg-tertiary); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                        <i class="bi bi-capsule" style="font-size: 1.25rem; color: var(--accent);"></i>
-                    </div>
-                    <div>
-                        <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">{{ med.name }}</h2>
-                        <span class="badge-custom badge-success">{{ med.schedule_str }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-                <div style="padding: 0.75rem; background: var(--bg-tertiary); border-radius: 8px;">
-                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">Dosage</p>
-                    <p style="font-weight: 600; margin: 0;">{{ med.dosage_per_day }} pill(s)/day</p>
-                </div>
-                <div style="padding: 0.75rem; background: var(--bg-tertiary); border-radius: 8px;">
-                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">Pills Remaining</p>
-                    <p style="font-weight: 600; margin: 0;">{{ med.total_pills }}</p>
-                </div>
-                <div style="padding: 0.75rem; background: var(--bg-tertiary); border-radius: 8px;">
-                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">Last Taken</p>
-                    <p style="font-weight: 600; margin: 0;">{{ med.last_taken or 'Never' }}</p>
-                </div>
-            </div>
-
-            {% if med.description %}
-            <div style="padding: 1rem; background: var(--bg-tertiary); border-radius: 8px; border-left: 3px solid var(--accent);">
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">Notes</p>
-                <p style="margin: 0; font-size: 0.9375rem;">{{ med.description }}</p>
-            </div>
-            {% else %}
-            <div style="padding: 1rem; background: var(--bg-tertiary); border-radius: 8px;">
-                <p style="color: var(--text-muted); margin: 0; font-size: 0.875rem; font-style: italic;">No description provided</p>
-            </div>
-            {% endif %}
-        </div>
-        {% empty %}
+        {% else %}
         <div class="card-custom" style="padding: 3rem; text-align: center;">
             <div style="width: 64px; height: 64px; background: var(--bg-tertiary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
                 <i class="bi bi-capsule" style="font-size: 1.5rem; color: var(--text-muted);"></i>
@@ -244,20 +85,6 @@
         {% endfor %}
     </div>
 
-    <!-- Important Note -->
-    <div class="card-custom fade-in" style="padding: 1.25rem; margin-top: 1.5rem; border-left: 4px solid var(--warning);">
-        <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-            <i class="bi bi-info-circle" style="color: var(--warning); font-size: 1.25rem; flex-shrink: 0;"></i>
-            <div>
-                <p style="font-weight: 600; margin-bottom: 0.25rem;">Important Reminder</p>
-                <p style="color: var(--text-secondary); margin: 0; font-size: 0.875rem;">
-                    Always consult your doctor before changing dosage or stopping any medication. Keep this guide updated and bring it to medical appointments.
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-    <!-- Important Note -->
     <div class="card-custom fade-in" style="padding: 1.25rem; margin-top: 1.5rem; border-left: 4px solid var(--warning);">
         <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
             <i class="bi bi-info-circle" style="color: var(--warning); font-size: 1.25rem; flex-shrink: 0;"></i>
