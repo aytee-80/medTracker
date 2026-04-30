@@ -151,26 +151,43 @@ def print_guide():
         return redirect(url_for('main.home'))
 
     user_id = session['user_id']
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT id, name, dosage_per_day, total_pills, schedule, last_taken, description FROM medications_v2 WHERE user_id = %s", (user_id,))
-    meds_data = cur.fetchall()
-    columns = [desc[0] for desc in cur.description]
-    medications = []
-
-    for row in meds_data:
-        med = dict(zip(columns, row))
-        if isinstance(med['schedule'], timedelta):
-            seconds = med['schedule'].total_seconds()
-            hours, remainder = divmod(seconds, 3600)
-            minutes, _ = divmod(remainder, 60)
-            med['schedule_str'] = f"{int(hours):02d}:{int(minutes):02d}"
-        elif med['schedule']:
-            med['schedule_str'] = str(med['schedule'])[:5]
-        else:
-            med['schedule_str'] = 'N/A'
-        medications.append(med)
-
-    cur.close()
-    conn.close()
-    return render_template('print_guide.html', medications=medications)
+    conn = None
+    cur = None
+    
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            flash("Database connection failed", "danger")
+            return redirect(url_for('main.dashboard'))
+            
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, name, dosage_per_day, total_pills, description, created_at
+            FROM medications_v2
+            WHERE user_id = %s
+            ORDER BY name
+        """, (user_id,))
+        
+        # Convert tuples to dictionaries safely
+        columns = [desc[0] for desc in cur.description]
+        medications = [dict(zip(columns, row)) for row in cur.fetchall()]
+        
+        # Format dates in Python to avoid Jinja2 errors
+        for med in medications:
+            if med['created_at'] and hasattr(med['created_at'], 'strftime'):
+                med['created_at_str'] = med['created_at'].strftime('%b %d, %Y')
+            else:
+                med['created_at_str'] = str(med['created_at'])[:10] if med['created_at'] else 'N/A'
+                
+        return render_template('print_guide.html', medications=medications)
+        
+    except Exception as e:
+        # Show exact error for debugging
+        print(f"Print guide error: {e}")
+        flash(f"Error loading medications: {str(e)}", "danger")
+        return redirect(url_for('main.dashboard'))
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
