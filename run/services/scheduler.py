@@ -1,5 +1,5 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from datetime import datetime, date, timedelta
+from datetime import datetime, date
 import atexit
 from run.db.connection import get_db_connection
 from run.services.email_service import send_reminder_email
@@ -9,42 +9,69 @@ scheduler = None
 
 def send_reminder_emails(app, mail):
     with app.app_context():
+        conn = None
+        cur = None
         try:
             conn = get_db_connection()
+            if conn is None:
+                print("Scheduler: Database connection failed")
+                return
+
             cur = conn.cursor()
             today = date.today()
-            cur.execute("SELECT * FROM medications_v2 WHERE notify_email = TRUE AND next_reminder <= NOW()")
-            meds = cur.fetchall()
-            columns = [desc[0] for desc in cur.description]
-            meds_with_cols = [dict(zip(columns, row)) for row in meds]
+            now_time = datetime.now().time()
 
-            now = datetime.now()
-            for med in meds_with_cols:
-                if med['last_taken'] != today and med['total_pills'] > 0:
-                    user_id = med['user_id']
-                    cur.execute("SELECT email FROM users WHERE id = %s", (user_id,))
-                    user = cur.fetchone()
-                    if user:
-                        send_reminder_email(mail, user[0], med)
+            # Find pending doses for today that are due now
+            cur.execute("""
+                SELECT md.id, md.medication_id, md.dose_time, md.pills_count,
+                       mv.name, mv.description, mv.user_id, u.email
+                FROM medication_doses_v2 md
+                JOIN medications_v2 mv ON md.medication_id = mv.id
+                JOIN users u ON mv.user_id = u.id
+                WHERE md.scheduled_date = %s
+                  AND md.status = 'pending'
+                  AND md.dose_time <= %s
+                  AND mv.notify_email = TRUE
+            """, (today, now_time))
 
-                
-                schedule_str = str(med['schedule'])[:5]
-                hour, minute = map(int, schedule_str.split(':'))
-                next_reminder = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-                if next_reminder <= now:
-                    next_reminder += timedelta(days=1)
-                cur.execute("UPDATE medications_v2 SET next_reminder = %s WHERE id = %s", (next_reminder, med['id']))
-                conn.commit()
-            cur.close()
-            conn.close()
+            doses = cur.fetchall()
+
+            for dose in doses:
+                try:
+                    med_data = {
+                        'name': dose['name'],
+                        'description': dose['description'],
+                        'dose_time': dose['dose_time'].strftime('%I:%M %p'),
+                        'pills_count': dose['pills_count'],
+                        'scheduled_date': today
+                    }
+                    send_reminder_email(mail, dose['email'], med_data)
+                except Exception as e:
+                    print(f"Failed to send reminder for dose {dose['id']}: {e}")
+
+            conn.commit()
         except Exception as e:
             print(f"Scheduler error: {e}")
+            if conn:
+                conn.rollback()
+        finally:
+            if cur:
+                cur.close()
+            if conn:
+                conn.close()
 
 def start_scheduler(app, mail):
     global scheduler_started, scheduler
     if not scheduler_started:
         scheduler = BackgroundScheduler()
-        scheduler.add_job(lambda: send_reminder_emails(app, mail), 'interval', minutes=1)
+        scheduler.add_job(
+            lambda: send_reminder_emails(app, mail),
+            'interval',
+            minutes=5,
+            id='medication_reminder_job',
+            replace_existing=True
+        )
         scheduler.start()
         scheduler_started = True
         atexit.register(lambda: scheduler.shutdown())
+        print("Scheduler started")
